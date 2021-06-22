@@ -33,13 +33,13 @@ const routes = [
   {
     path: '/perfom',
     name: 'Perfom',
-    component: () => import(/* webpackChunkName: "about" */ '../views/Perfom.vue'),
+    component: () => import('../views/Perfom.vue'),
     meta: { transition: 'overlay-right' },
   },
   {
     path: '/test',
     name: 'Test',
-    component: () => import(/* webpackChunkName: "about" */ '../views/Test.vue'),
+    component: () => import('../views/Test.vue'),
     meta: { transition: 'overlay-right' },
   }
 ]

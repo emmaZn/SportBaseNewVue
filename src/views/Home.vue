@@ -91,7 +91,9 @@
               >
               <v-card-text>{{ exo.exercise.description }}</v-card-text>
             </v-card>
-            <v-btn v-if="index == selected.exercises.length - 1" @click="finish()"
+            <v-btn
+              v-if="index == selected.exercises.length - 1"
+              @click="finish()"
               >FELICITATION</v-btn
             >
             <v-btn color="primary" v-else @click="next()">
@@ -109,6 +111,9 @@
 <script>
 import firebase from "firebase/app";
 import Header from "../components/Header.vue";
+import axios from "axios";
+import urlParse from "url-parse";
+import queryParse from "query-string";
 
 export default {
   name: "Home",
@@ -131,6 +136,10 @@ export default {
         ],
       },
       dialog: false,
+      url: null,
+      code: null,
+      data: [],
+      perfom: [],
     };
   },
 
@@ -145,6 +154,7 @@ export default {
           return this.getData();
         });
       });
+    this.parseUrl();
   },
   methods: {
     getData() {
@@ -185,6 +195,78 @@ export default {
     finish() {
       this.dialog = false;
       this.$store.commit("setFinalDate", new Date().getTime());
+      // console.log(this.$store.state.startDate);
+      // console.log(this.$store.state.endDate);
+      // const self = this;
+      axios
+        .get("https://europe-west1-sportbase-38151.cloudfunctions.net/getLink")
+        .then(function (response) {
+          console.log(response.data.url);
+          // self.data = response.data.url;
+          window.location.href = response.data.url;
+          // return response.data;
+        });
+    },
+    parseUrl() {
+      this.url = window.location.search;
+      if (this.url) {
+        const queryURL = new urlParse(this.url);
+        const code = queryParse.parse(queryURL.query).code;
+        console.log("code", code);
+        this.getGoogleFitData(code);
+      }
+    },
+    async getGoogleFitData(code) {
+      const self = this;
+      if (code) {
+        // console.log(code);
+        var data = JSON.stringify({
+          code: code,
+        });
+
+        var config = {
+          method: "post",
+          url: "https://europe-west1-sportbase-38151.cloudfunctions.net/postData",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          data: data,
+        };
+
+        await axios(config)
+          .then(function (response) {
+            self.data = response.data;
+          })
+          .catch(function (error) {
+            console.log(error);
+          });
+      } else {
+        console.log("no code");
+      }
+      this.sendGoogleFitData(self.data);
+    },
+    sendGoogleFitData(data) {
+      var bpm = [];
+      var calories = [];
+      console.log(data);
+      data.bpm.forEach((dbpm, index) => {
+        if (index === 0) {
+          bpm.moy = dbpm.fpVal;
+        } else if (index === 1) {
+          bpm.max = dbpm.fpVal;
+        } else if (index === 2) {
+          bpm.min = dbpm.fpVal;
+        }
+        // console.log(index);
+      });
+      data.calories.forEach((cal) => {
+        calories.calories = cal.fpVal;
+      });
+      this.perfom.bpm = bpm;
+      this.perfom.calories = calories;
+      // console.log(bpm);
+      // console.log(calories);
+      console.log(this.perfom);
     },
   },
 };

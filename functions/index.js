@@ -22,7 +22,7 @@ exports.getLink = functions.https.onRequest((req, res) => {
       const oauth2Client = new google.auth.OAuth2(
         "329953458846-g91hdj53b2ojs8ck775r7h77c98tm5ql.apps.googleusercontent.com",
         "C-4DybcdMnORlveADEuoDaXn",
-        "http://localhost:8080/test"
+        "http://localhost:8080"
       );
       const scopes = ["https://www.googleapis.com/auth/fitness.heart_rate.read",
         "https://www.googleapis.com/auth/fitness.activity.read",
@@ -50,15 +50,11 @@ exports.postData = functions.https.onRequest(async (req, res) => {
     cors(req, res, async () => {
 
       const oauth2Client = new google.auth.OAuth2(
-        //client id
         '329953458846-g91hdj53b2ojs8ck775r7h77c98tm5ql.apps.googleusercontent.com',
-        //client secret
         'C-4DybcdMnORlveADEuoDaXn',
-        // link to redirect
-        "http://localhost:8080/test"
+        "http://localhost:8080"
       )
       const tokens = await oauth2Client.getToken(req.body.code)
-      // console.log(tokens.tokens.access_token)
       const result = await axios({
         method: 'GET',
         headers: {
@@ -103,7 +99,6 @@ exports.postData = functions.https.onRequest(async (req, res) => {
           });
 
           if (ggfitData.bpm && ggfitData.calories) {
-            // res.send(ggfitData)
             return res.send(ggfitData)
           }
         }
