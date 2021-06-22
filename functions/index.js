@@ -82,10 +82,10 @@ exports.postData = functions.https.onRequest(async (req, res) => {
                 dataSourceId: data.dataStreamId,
               }],
               bucketByTime: {
-                durationMillis: 1402000 //86400000 jour
+                durationMillis: req.body.endTimeMillis - req.body.startTimeMillis //86400000 jour
               },
-              startTimeMillis: 1623676620000,
-              endTimeMillis: 1623678022000
+              startTimeMillis: req.body.startTimeMillis,
+              endTimeMillis: req.body.endTimeMillis
             }
           })
           let d = dataSet.data.bucket[0].dataset[0]

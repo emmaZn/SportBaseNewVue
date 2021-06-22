@@ -147,38 +147,20 @@ export default {
 
   mounted() {
     if (!this.$store.state.uid) return this.$router.push({ name: "Login" });
-    // console.log(this.$store.state.uid);
+    // console.log(this.$store.state.startDate);
+    // console.log(this.$store.state.endDate);
     const db = firebase.firestore();
     db.collection("trainings")
       .get()
       .then((querySnapshot) => {
         querySnapshot.forEach((doc) => {
-          let obj=doc.data()
-          obj.id=doc.id
+          let obj = doc.data();
+          obj.id = doc.id;
           this.trainings.push(obj);
           return this.getData();
         });
       });
-      // var time = new Date().getTime(); // get your number
-      // console.log(time);
-      // var date = new Date(time); // create Date object
-      // console.log(date);
-
-    // const performs = db.collection("performs");
-    // performs.doc().set({
-    //   averageHeartRate: 100,
-    //   calories: 100,
-    //   createdAt: firebase.firestore.Timestamp.fromDate(
-    //     new Date(this.$store.state.startDate)
-    //   ),
-    //   duration: this.$store.state.finalDate - this.$store.state.startDate,
-    //   endAt: firebase.firestore.Timestamp.fromDate(
-    //     new Date(this.$store.state.finalDate)
-    //   ),
-    //   maxHeartRate: 100,
-    //   training: db.doc("/trainings/Y1MYov0raqq7Bm78hVym"),
-    //   user: db.doc(`/users/${this.$store.state.uid}`), 
-    // });
+    this.parseUrl();
   },
   methods: {
     getData() {
@@ -217,24 +199,24 @@ export default {
       this.$store.commit("setStartDate", new Date().getTime());
     },
     finish() {
+      this.$store.commit("setTrainingId", this.selected.id);
       this.dialog = false;
       this.$store.commit("setFinalDate", new Date().getTime());
       // console.log(this.$store.state.startDate);
       // console.log(this.$store.state.endDate);
       // const self = this;
-      // axios
-      //   .get("https://europe-west1-sportbase-38151.cloudfunctions.net/getLink")
-      //   .then(function (response) {
-      //     console.log(response.data.url);
-      //     // self.data = response.data.url;
-      //     window.location.href = response.data.url;
-      //     // return response.data;
-      //   });
-      console.log("training",this.selected)
-
+      axios
+        .get("https://europe-west1-sportbase-38151.cloudfunctions.net/getLink")
+        .then(function (response) {
+          console.log(response.data.url);
+          // self.data = response.data.url;
+          window.location.href = response.data.url;
+          // return response.data;
+        });
     },
     parseUrl() {
       this.url = window.location.search;
+      // console.log(this.url);
       if (this.url) {
         const queryURL = new urlParse(this.url);
         const code = queryParse.parse(queryURL.query).code;
@@ -245,11 +227,11 @@ export default {
     async getGoogleFitData(code) {
       const self = this;
       if (code) {
-        // console.log(code);
         var data = JSON.stringify({
           code: code,
+          startTimeMillis: this.$store.state.startDate,
+          endTimeMillis: this.$store.state.finalDate
         });
-
         var config = {
           method: "post",
           url: "https://europe-west1-sportbase-38151.cloudfunctions.net/postData",
@@ -258,7 +240,6 @@ export default {
           },
           data: data,
         };
-
         await axios(config)
           .then(function (response) {
             self.data = response.data;
@@ -288,11 +269,22 @@ export default {
       data.calories.forEach((cal) => {
         calories.calories = cal.fpVal;
       });
-      this.perfom.bpm = bpm;
-      this.perfom.calories = calories;
-      // console.log(bpm);
-      // console.log(calories);
-      console.log(this.perfom);
+      const db = firebase.firestore();
+      const performs = db.collection("performs");
+      performs.doc().set({
+        averageHeartRate: bpm.moy,
+        calories: calories.calories,
+        createdAt: firebase.firestore.Timestamp.fromDate(
+          new Date(this.$store.state.startDate)
+        ),
+        duration: this.$store.state.finalDate - this.$store.state.startDate,
+        endAt: firebase.firestore.Timestamp.fromDate(
+          new Date(this.$store.state.finalDate)
+        ),
+        maxHeartRate: bpm.max,
+        training: db.doc(`/trainings/${this.$store.state.trainingId}`),
+        user: db.doc(`/users/${this.$store.state.uid}`),
+      });
     },
   },
 };

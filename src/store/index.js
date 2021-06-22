@@ -13,7 +13,8 @@ export default new Vuex.Store({
     photoURL: null,
     isAdmin: null,
     startDate:null,
-    finalDate:null
+    finalDate:null,
+    trainingId:null
   },
   mutations: {
     setUser(state, user) {
@@ -35,6 +36,9 @@ export default new Vuex.Store({
     },
     setFinalDate(state, date) {
       state.finalDate = date
+    },
+    setTrainingId(state, trainingId) {
+      state.trainingId = trainingId
     },
     logout(state) {
       state.uid = null
