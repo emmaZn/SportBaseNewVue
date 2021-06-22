@@ -10,7 +10,7 @@
   },
   "hosting": {
     "site": "sportbase-38151",
-    "public": "public",
+    "public": "dist",
     "ignore": [
       "firebase.json",
       "**/.*",

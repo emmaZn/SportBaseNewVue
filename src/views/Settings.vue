@@ -1,5 +1,6 @@
 <template>
   <div class="mt-10">
+    <Header></Header>
     <!-- A preview of the image. -->
     <v-row justify="center">
       <v-badge bordered color="transparent" offset-x="10" offset-y="10">
@@ -14,7 +15,7 @@
         >
           <v-icon> mdi-pen </v-icon>
         </v-btn>
-        <v-avatar size="200">
+        <v-avatar size="180">
           <v-img
             :src="$store.state.photoURL"
             aspect-ratio="1"
@@ -57,14 +58,20 @@
       class="mt-5"
     ></v-text-field>
     <v-text-field v-model="displayName" label="Pseudo"></v-text-field>
-    <v-row><v-btn @click="setDisplayName" color="primary">Enregistrer</v-btn></v-row>
+    <v-row
+      ><v-btn @click="setDisplayName" color="primary">Enregistrer</v-btn></v-row
+    >
     <v-row><v-btn @click="logout" color="error"> Déconnexion </v-btn></v-row>
   </div>
 </template>
 <script>
 import firebase from "firebase/app";
+import Header from "../components/Header.vue";
 
 export default {
+  components: {
+    Header: Header,
+  },
   data() {
     return {
       isUploadingImage: false,
@@ -123,8 +130,12 @@ export default {
             this.$store.commit("setPhoto", url);
           })
           .catch((error) => {
-            console.log(error)
+            console.log(error);
           });
+        const db = firebase.firestore();
+        db.collection("cities").doc(user.uid).update({
+          photoURL: url,
+        });
         this.isUploadingImage = false;
       });
     },
@@ -146,11 +157,11 @@ export default {
         .signOut()
         .then(() => {
           this.$store.commit("logout");
-          this.$router.push({ name: 'Login' });
+          this.$router.push({ name: "Login" });
         })
         .catch((error) => {
           alert(error.message);
-          this.$router.push({ name: 'Login' });
+          this.$router.push({ name: "Login" });
         });
     },
     setDisplayName() {

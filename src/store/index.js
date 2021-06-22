@@ -11,7 +11,9 @@ export default new Vuex.Store({
     emailVerified: null,
     displayName: null,
     photoURL: null,
-    isAdmin: null
+    isAdmin: null,
+    startDate:null,
+    finalDate:null
   },
   mutations: {
     setUser(state, user) {
@@ -28,7 +30,12 @@ export default new Vuex.Store({
     setDisplayName(state, name) {
       state.displayName = name
     },
-
+    setStartDate(state, date) {
+      state.startDate = date
+    },
+    setFinalDate(state, date) {
+      state.finalDate = date
+    },
     logout(state) {
       state.uid = null
       state.email = null

@@ -22,6 +22,7 @@ import firebase from "firebase/app";
 // import auth from "firebase/auth";
 
 export default {
+
   data() {
     return {
       email: "",
@@ -50,21 +51,26 @@ export default {
                 photoURL: userCredentials.user.photoURL,
                 isAdmin: userCredentials.user.isAdmin,
               };
-              // db.collection("users")
-              //   .add({
-              //     uid: user.uid,
-              //   })
-              //   .then((docRef) => {
-              //     console.log("Document written with ID: ", docRef.id);
-              //   })
-              //   .catch((error) => {
-              //     console.error("Error adding document: ", error);
-              //   });
 
               this.$store.commit("setUser", user);
-              if (userCredentials.additionalUserInfo.isNewUser)
-                return this.$router.push({ name: 'Settings' });
-              this.$router.push({ name: 'Home' });
+              if (userCredentials.additionalUserInfo.isNewUser) {
+                const db = firebase.firestore();
+                db.collection("users")
+                  .doc(user.uid)
+                  .set({
+                    photoURL: user.photoURL,
+                    displayName: user.displayName,
+                    email: user.email,
+                  })
+                  .then((docRef) => {
+                    console.log("Document written with ID: ", docRef.id);
+                  })
+                  .catch((error) => {
+                    console.error("Error adding document: ", error);
+                  });
+                return this.$router.push({ name: "Settings" });
+              }
+              this.$router.push({ name: "Home" });
             });
         });
     },
@@ -90,9 +96,24 @@ export default {
                 isAdmin: userCredentials.user.emailVerified,
               };
               this.$store.commit("setUser", user);
-              if (userCredentials.additionalUserInfo.isNewUser)
-                return this.$router.push({ name: 'Settings' });
-              return this.$router.push({ name: 'Home' });
+              if (userCredentials.additionalUserInfo.isNewUser) {
+                const db = firebase.firestore();
+                db.collection("users")
+                  .doc(user.uid)
+                  .set({
+                    photoURL: user.photoURL,
+                    displayName: user.displayName,
+                    email: user.email,
+                  })
+                  .then((docRef) => {
+                    console.log("Document written with ID: ", docRef.id);
+                  })
+                  .catch((error) => {
+                    console.error("Error adding document: ", error);
+                  });
+                return this.$router.push({ name: "Settings" });
+              }
+              return this.$router.push({ name: "Home" });
             });
         });
     },
@@ -112,7 +133,7 @@ export default {
             isAdmin: userCredentials.user.emailVerified,
           };
           this.$store.commit("setUser", user);
-          this.$router.push({ name: 'Home' });
+          this.$router.push({ name: "Home" });
         })
         .catch((error) => {
           console.log(error);
@@ -125,7 +146,7 @@ export default {
 <style scoped>
 .bg {
   background: linear-gradient(168.29deg, #007991 0%, #2f3637 126.15%);
-  height:100%;
+  height: 100%;
   width: 100%;
 }
 h1 {
