@@ -110,6 +110,8 @@
 
 <script>
 import firebase from "firebase/app";
+// import { Timestamp } from "firebase/firestore";
+// import { db } from "@/plugins/firebase";
 import Header from "../components/Header.vue";
 import axios from "axios";
 import urlParse from "url-parse";
@@ -145,16 +147,37 @@ export default {
 
   mounted() {
     if (!this.$store.state.uid) return this.$router.push({ name: "Login" });
+    // console.log(this.$store.state.uid);
     const db = firebase.firestore();
     db.collection("trainings")
       .get()
       .then((querySnapshot) => {
         querySnapshot.forEach((doc) => {
+          console.log(doc.data())
           this.trainings.push(doc.data());
           return this.getData();
         });
       });
-    this.parseUrl();
+      // var time = new Date().getTime(); // get your number
+      // console.log(time);
+      // var date = new Date(time); // create Date object
+      // console.log(date);
+
+    // const performs = db.collection("performs");
+    // performs.doc().set({
+    //   averageHeartRate: 100,
+    //   calories: 100,
+    //   createdAt: firebase.firestore.Timestamp.fromDate(
+    //     new Date(this.$store.state.startDate)
+    //   ),
+    //   duration: this.$store.state.finalDate - this.$store.state.startDate,
+    //   endAt: firebase.firestore.Timestamp.fromDate(
+    //     new Date(this.$store.state.finalDate)
+    //   ),
+    //   maxHeartRate: 100,
+    //   training: db.doc("/trainings/Y1MYov0raqq7Bm78hVym"),
+    //   user: db.doc(`/users/${this.$store.state.uid}`), 
+    // });
   },
   methods: {
     getData() {
@@ -198,14 +221,16 @@ export default {
       // console.log(this.$store.state.startDate);
       // console.log(this.$store.state.endDate);
       // const self = this;
-      axios
-        .get("https://europe-west1-sportbase-38151.cloudfunctions.net/getLink")
-        .then(function (response) {
-          console.log(response.data.url);
-          // self.data = response.data.url;
-          window.location.href = response.data.url;
-          // return response.data;
-        });
+      // axios
+      //   .get("https://europe-west1-sportbase-38151.cloudfunctions.net/getLink")
+      //   .then(function (response) {
+      //     console.log(response.data.url);
+      //     // self.data = response.data.url;
+      //     window.location.href = response.data.url;
+      //     // return response.data;
+      //   });
+      console.log("training",this.selected)
+
     },
     parseUrl() {
       this.url = window.location.search;
