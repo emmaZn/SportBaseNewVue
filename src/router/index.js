@@ -30,6 +30,18 @@ const routes = [
     name: 'Register',
     component: Register,
   },
+  {
+    path: '/perfom',
+    name: 'Perfom',
+    component: () => import(/* webpackChunkName: "about" */ '../views/Perfom.vue'),
+    meta: { transition: 'overlay-right' },
+  },
+  {
+    path: '/test',
+    name: 'Test',
+    component: () => import(/* webpackChunkName: "about" */ '../views/Test.vue'),
+    meta: { transition: 'overlay-right' },
+  }
 ]
 
 const router = new VueRouter({
