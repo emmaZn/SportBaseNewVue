@@ -17,7 +17,8 @@ export default {
     return {
       url: null,
       code: null,
-      data: []
+      data: [],
+      perfom: []
     };
   },
   mounted() {
@@ -77,8 +78,11 @@ export default {
       data.calories.forEach(cal => {
         calories.calories = cal.fpVal 
       });
-      console.log(bpm);
-      console.log(calories);
+      this.perfom.bpm = bpm;
+      this.perfom.calories = calories;
+      // console.log(bpm);
+      // console.log(calories);
+      console.log(this.perfom);
     }
   },
 };
