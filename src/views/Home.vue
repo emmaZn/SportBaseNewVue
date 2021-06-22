@@ -141,7 +141,9 @@ export default {
       .get()
       .then((querySnapshot) => {
         querySnapshot.forEach((doc) => {
-          this.trainings.push(doc.data());
+          let obj=doc.data()
+          obj.id=doc.id
+          this.trainings.push(obj);
           return this.getData();
         });
       });

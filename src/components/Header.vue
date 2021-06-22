@@ -7,11 +7,14 @@
     <v-spacer></v-spacer>
     <v-row justify="end" align="center" class="mr-5"
       ><v-col cols="2" justify="center">
+        <router-link :to="{ name: 'NewTraining' }">
+
         <v-row>
           <v-btn icon class="ma-auto"
             ><v-icon>mdi-plus-circle-outline</v-icon></v-btn
           ></v-row
         ><v-row justify="center"> <p>Nouveau</p></v-row>
+        </router-link>
       </v-col>
       <v-col cols="2">
         <router-link :to="{ name: 'Home' }">

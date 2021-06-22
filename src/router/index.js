@@ -4,6 +4,7 @@ import Home from '../views/Home.vue'
 import Login from '../views/Login.vue'
 import Settings from '../views/Settings.vue'
 import Register from '../views/Register.vue'
+import NewTraining from '../views/NewTraining.vue'
 
 
 
@@ -29,6 +30,10 @@ const routes = [
     path: '/Register',
     name: 'Register',
     component: Register,
+  },  {
+    path: '/NewTraining',
+    name: 'NewTraining',
+    component: NewTraining,
   },
   {
     path: '/perfom',
