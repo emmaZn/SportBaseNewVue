@@ -137,7 +137,7 @@
               Prochain exercice
             </v-btn>
 
-            <v-btn text>annuler</v-btn>
+            <v-btn @click="close" text>annuler</v-btn>
           </v-stepper-content>
         </v-stepper-items>
       </v-stepper>
@@ -184,7 +184,7 @@ export default {
   },
 
   mounted() {
-    if (!this.$store.state.uid) return this.$router.push({ name: "Login" })
+    if (!this.$store.state.uid) return this.$router.push({ name: "Login" });
     // console.log(this.$store.state.startDate);
     // console.log(this.$store.state.endDate);
     const db = firebase.firestore();
@@ -192,18 +192,18 @@ export default {
       .get()
       .then((querySnapshot) => {
         querySnapshot.forEach((doc) => {
-          let obj = doc.data()
-          obj.id = doc.id
-          obj.show=false
-          this.trainings.push(obj)
-          return this.getData()
+          let obj = doc.data();
+          obj.id = doc.id;
+          obj.show = false;
+          this.trainings.push(obj);
+          return this.getData();
         });
       });
     this.parseUrl();
   },
   methods: {
     getData() {
-      const db = firebase.firestore()
+      const db = firebase.firestore();
       this.trainings.forEach((doc) => {
         doc.haut = 0;
         doc.bas = 0;
@@ -233,8 +233,12 @@ export default {
     },
     start() {
       this.warning = false;
-      this.dialog = true;
+      this.dialog = false;
     },
+    close() {
+      this.dialog = false;
+    },
+
     startTraining(obj) {
       this.warning = true;
       console.log(obj);
