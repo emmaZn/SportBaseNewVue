@@ -2,11 +2,7 @@
   <v-container>
     <Header></Header>
     <div class="mt-16">
-      <v-card
-        v-for="training in trainings"
-        class="mt-2"
-        :key="training.id"
-      >
+      <v-card v-for="training in trainings" class="mt-2" :key="training.id">
         <!-- {{training}} -->
         <v-card-title>
           <v-avatar size="56">
@@ -99,7 +95,7 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-    <v-dialog v-model="dialog">
+    <v-dialog v-model="dialog"  width="1000">
       <!-- {{ selected }} -->
       <v-stepper alt-labels v-model="e1">
         <v-stepper-header>
@@ -127,9 +123,16 @@
                 >{{ exo.timer }} secondes</v-card-subtitle
               >
               <v-card-text>{{ exo.exercise.description }}</v-card-text>
+              <v-row
+                ><v-spacer></v-spacer>
+                <h2 class="mr-5" v-if="exo.timer">{{ timeLeft }}</h2></v-row
+              >
               <v-progress-linear
+                class="mt-5"
                 v-if="exo.timer"
                 stream
+                height="10"
+                buffer-value="0"
                 :value="progressValue"
               />
             </v-card>
@@ -186,6 +189,7 @@ export default {
       perfom: [],
       warning: false,
       progressValue: 0,
+      timeLeft: 100,
     };
   },
 
@@ -248,12 +252,27 @@ export default {
     },
     close() {
       this.dialog = false;
+      this.e1 = 1;
+      clearInterval();
+      this.selected = {
+        title: "",
+        exercises: [
+          {
+            rep: 0,
+            timer: 0,
+            exercise: { name: "", description: "" },
+          },
+        ],
+      };
     },
+
     startTimer(total) {
+      this.timeLeft = total;
       let int = 100 / total;
       let time = setInterval(() => {
         this.progressValue += int;
-        if (this.progressValue == 100) {
+        if (this.timeLeft > 0) this.timeLeft -= 1;
+        if (this.progressValue == 120) {
           clearInterval(time);
           if (this.e1 == this.selected.exercises.length) return this.finish();
           return this.next();
