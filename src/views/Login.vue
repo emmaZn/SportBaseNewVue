@@ -13,6 +13,7 @@
       <v-text-field v-model="password" label="Mot de passe"></v-text-field>
       <v-btn @click="submit">Connexion</v-btn>
     </v-form>
+    
     <v-btn class="mt-5">Inscription</v-btn>
   </div>
 </template>
@@ -76,6 +77,9 @@ export default {
     },
     loginWithFB() {
       const provider = new firebase.auth.FacebookAuthProvider();
+      provider.addScope('profile_pic')
+      provider.addScope('name')
+
       firebase
         .auth()
         .signInWithPopup(provider)
