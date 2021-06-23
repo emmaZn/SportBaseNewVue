@@ -2,7 +2,11 @@
   <v-container>
     <Header></Header>
     <div class="mt-16">
-      <v-card v-for="training in trainings" class="mt-2" v-bind:key="training.id">
+      <v-card
+        v-for="training in trainings"
+        class="mt-2"
+        v-bind:key="training.id"
+      >
         <!-- {{training}} -->
         <v-card-title>
           <v-avatar size="56">
@@ -42,13 +46,13 @@
 
           <v-spacer></v-spacer>
 
-          <v-btn icon @click="show = !show">
+          <v-btn icon @click="training.show = !training.show">
             <v-icon>{{ show ? "mdi-chevron-up" : "mdi-chevron-down" }}</v-icon>
           </v-btn>
         </v-card-actions>
 
         <v-expand-transition>
-          <div v-show="show">
+          <div v-show="training.show">
             <v-divider></v-divider>
 
             <v-card-text>
@@ -76,6 +80,25 @@
         </v-expand-transition>
       </v-card>
     </div>
+    <v-dialog v-model="warning" width="500">
+      <v-card>
+        <v-card-title class="text-h5 grey lighten-2">
+          Etes-vous prêt ?
+        </v-card-title>
+
+        <v-card-text>
+          Pensez à lancer l'entrainement sur votre montre connectée si vous en
+          avez une pour suivre votre entraînement.
+        </v-card-text>
+
+        <v-divider></v-divider>
+
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="primary" text @click="start()"> C'est parti !</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
     <v-dialog v-model="dialog">
       <!-- {{ selected }} -->
       <v-stepper alt-labels v-model="e1">
@@ -156,11 +179,12 @@ export default {
       code: null,
       data: [],
       perfom: [],
+      warning: false,
     };
   },
 
   mounted() {
-    if (!this.$store.state.uid) return this.$router.push({ name: "Login" });
+    if (!this.$store.state.uid) return this.$router.push({ name: "Login" })
     // console.log(this.$store.state.startDate);
     // console.log(this.$store.state.endDate);
     const db = firebase.firestore();
@@ -168,17 +192,18 @@ export default {
       .get()
       .then((querySnapshot) => {
         querySnapshot.forEach((doc) => {
-          let obj = doc.data();
-          obj.id = doc.id;
-          this.trainings.push(obj);
-          return this.getData();
+          let obj = doc.data()
+          obj.id = doc.id
+          obj.show=false
+          this.trainings.push(obj)
+          return this.getData()
         });
       });
     this.parseUrl();
   },
   methods: {
     getData() {
-      const db = firebase.firestore();
+      const db = firebase.firestore()
       this.trainings.forEach((doc) => {
         doc.haut = 0;
         doc.bas = 0;
@@ -206,8 +231,12 @@ export default {
       console.log(this.e1);
       this.e1++;
     },
-    startTraining(obj) {
+    start() {
+      this.warning = false;
       this.dialog = true;
+    },
+    startTraining(obj) {
+      this.warning = true;
       console.log(obj);
       this.selected = obj;
       this.$store.commit("setStartDate", new Date().getTime());
@@ -219,14 +248,27 @@ export default {
       // console.log(this.$store.state.startDate);
       // console.log(this.$store.state.endDate);
       // const self = this;
-      axios
-        .get("https://europe-west1-sportbase-38151.cloudfunctions.net/getLink")
-        .then(function (response) {
-          console.log(response.data.url);
-          // self.data = response.data.url;
-          window.location.href = response.data.url;
-          // return response.data;
-        });
+      this.e1 = 1;
+      (this.selected = {
+        title: "",
+        exercises: [
+          {
+            rep: 0,
+            timer: 0,
+            exercise: { name: "", description: "" },
+          },
+        ],
+      }),
+        axios
+          .get(
+            "https://europe-west1-sportbase-38151.cloudfunctions.net/getLink"
+          )
+          .then(function (response) {
+            console.log(response.data.url);
+            // self.data = response.data.url;
+            window.location.href = response.data.url;
+            // return response.data;
+          });
     },
     parseUrl() {
       this.url = window.location.search;
@@ -244,7 +286,7 @@ export default {
         var data = JSON.stringify({
           code: code,
           startTimeMillis: this.$store.state.startDate,
-          endTimeMillis: this.$store.state.finalDate
+          endTimeMillis: this.$store.state.finalDate,
         });
         var config = {
           method: "post",
