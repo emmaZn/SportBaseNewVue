@@ -114,7 +114,7 @@
               Prochain exercice
             </v-btn>
 
-            <v-btn text>annuler</v-btn>
+            <v-btn @click="close" text>annuler</v-btn>
           </v-stepper-content>
         </v-stepper-items>
       </v-stepper>
@@ -205,6 +205,9 @@ export default {
     next() {
       console.log(this.e1);
       this.e1++;
+    },
+    close() {
+      this.dialog = false
     },
     startTraining(obj) {
       this.dialog = true;
