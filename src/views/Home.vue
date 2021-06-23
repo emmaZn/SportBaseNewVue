@@ -127,6 +127,11 @@
                 >{{ exo.timer }} secondes</v-card-subtitle
               >
               <v-card-text>{{ exo.exercise.description }}</v-card-text>
+              <v-progress-linear
+                v-if="exo.timer"
+                stream
+                :value="progressValue"
+              />
             </v-card>
             <v-btn
               v-if="index == selected.exercises.length - 1"
@@ -137,7 +142,7 @@
               Prochain exercice
             </v-btn>
 
-            <v-btn @click="close" text>annuler</v-btn>
+            <v-btn @click="close" text>Arrêter l'entraînement</v-btn>
           </v-stepper-content>
         </v-stepper-items>
       </v-stepper>
@@ -180,6 +185,7 @@ export default {
       data: [],
       perfom: [],
       warning: false,
+      progressValue: 0,
     };
   },
 
@@ -230,13 +236,29 @@ export default {
     next() {
       console.log(this.e1);
       this.e1++;
+      this.progressValue = 0;
+      if (this.selected.exercises[this.e1 - 1].timer)
+        this.startTimer(this.selected.exercises[this.e1 - 1].timer);
     },
     start() {
       this.warning = false;
-      this.dialog = false;
+      this.dialog = true;
+      if (this.selected.exercises[this.e1 - 1].timer)
+        this.startTimer(this.selected.exercises[this.e1 - 1].timer);
     },
     close() {
       this.dialog = false;
+    },
+    startTimer(total) {
+      let int = 100 / total;
+      let time = setInterval(() => {
+        this.progressValue += int;
+        if (this.progressValue == 100) {
+          clearInterval(time);
+          if (this.e1 == this.selected.exercises.length) return this.finish();
+          return this.next();
+        }
+      }, 1000);
     },
 
     startTraining(obj) {
@@ -246,6 +268,7 @@ export default {
       this.$store.commit("setStartDate", new Date().getTime());
     },
     finish() {
+      this.progressValue = 0;
       this.$store.commit("setTrainingId", this.selected.id);
       this.dialog = false;
       this.$store.commit("setFinalDate", new Date().getTime());
