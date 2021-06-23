@@ -2,7 +2,11 @@
   <v-container>
     <Header></Header>
     <div class="mt-16">
-      <v-card v-for="training in trainings" class="mt-2" v-bind:key="training.id">
+      <v-card
+        v-for="training in trainings"
+        class="mt-2"
+        v-bind:key="training.id"
+      >
         <!-- {{training}} -->
         <v-card-title>
           <v-avatar size="56">
@@ -108,8 +112,9 @@
             <v-btn
               v-if="index == selected.exercises.length - 1"
               @click="finish()"
-              >FELICITATION</v-btn
             >
+              FELICITATION
+            </v-btn>
             <v-btn color="primary" v-else @click="next()">
               Prochain exercice
             </v-btn>
@@ -118,6 +123,26 @@
           </v-stepper-content>
         </v-stepper-items>
       </v-stepper>
+    </v-dialog>
+    <v-dialog v-model="dialog2" max-width="800">
+      <v-card>
+        <v-card-title class="text-h4 justify-center text-center primary">
+          Félicitation!!
+        </v-card-title>
+        <v-card-text class="pt-6">
+          <p class="text-center text-h6">Votre entrainement à durré {{this.duration}}</p>
+          <p class="text-center text-h6">Votre avez dépensé {{}} calories</p>
+          <p class="text-center text-h6">Votre BPM moyen était de {{}}</p>
+          <p class="text-center text-h6">Votre BPM max était de {{}}</p>
+        </v-card-text>
+
+        <v-divider></v-divider>
+        <v-card-actions class="justify-center">
+          <v-btn color="primary" @click="close" text>Fermer</v-btn>
+
+        </v-card-actions>
+      </v-card>
+      
     </v-dialog>
   </v-container>
 </template>
@@ -152,10 +177,12 @@ export default {
         ],
       },
       dialog: false,
+      dialog2: false,
       url: null,
       code: null,
       data: [],
       perfom: [],
+      duration: null
     };
   },
 
@@ -186,7 +213,7 @@ export default {
           .doc(doc.user.id)
           .get()
           .then((res) => {
-            console.log("user", res.data());
+            // console.log("user", res.data());
             doc.user = res.data();
           });
         for (let i = 0; i < doc.exercises.length; i++) {
@@ -194,7 +221,7 @@ export default {
             .doc(doc.exercises[i].exercise.id)
             .get()
             .then((res) => {
-              console.log("ex", res.data());
+              // console.log("ex", res.data());
               doc.exercises[i].exercise = res.data();
               if (res.data().categorie == "haut") doc.haut++;
               if (res.data().categorie == "bas") doc.bas++;
@@ -203,15 +230,16 @@ export default {
       });
     },
     next() {
-      console.log(this.e1);
+      // console.log(this.e1);
       this.e1++;
     },
     close() {
-      this.dialog = false
+      this.dialog = false;
+      this.dialog2 = false;
     },
     startTraining(obj) {
       this.dialog = true;
-      console.log(obj);
+      // console.log(obj);
       this.selected = obj;
       this.$store.commit("setStartDate", new Date().getTime());
     },
@@ -219,8 +247,8 @@ export default {
       this.$store.commit("setTrainingId", this.selected.id);
       this.dialog = false;
       this.$store.commit("setFinalDate", new Date().getTime());
-      // console.log(this.$store.state.startDate);
-      // console.log(this.$store.state.endDate);
+      console.log(this.$store.state.startDate);
+      console.log(this.$store.state.finalDate);
       // const self = this;
       axios
         .get("https://europe-west1-sportbase-38151.cloudfunctions.net/getLink")
@@ -233,11 +261,11 @@ export default {
     },
     parseUrl() {
       this.url = window.location.search;
-      // console.log(this.url);
+      console.log(this.url);
       if (this.url) {
         const queryURL = new urlParse(this.url);
         const code = queryParse.parse(queryURL.query).code;
-        console.log("code", code);
+        // console.log("code", code);
         this.getGoogleFitData(code);
       }
     },
@@ -247,7 +275,7 @@ export default {
         var data = JSON.stringify({
           code: code,
           startTimeMillis: this.$store.state.startDate,
-          endTimeMillis: this.$store.state.finalDate
+          endTimeMillis: this.$store.state.finalDate,
         });
         var config = {
           method: "post",
@@ -259,7 +287,8 @@ export default {
         };
         await axios(config)
           .then(function (response) {
-            self.data = response.data;
+            // self.data = response.data;
+            self.sendGoogleFitData(response.data);
           })
           .catch(function (error) {
             console.log(error);
@@ -267,7 +296,6 @@ export default {
       } else {
         console.log("no code");
       }
-      this.sendGoogleFitData(self.data);
     },
     sendGoogleFitData(data) {
       var bpm = [];
@@ -286,6 +314,7 @@ export default {
       data.calories.forEach((cal) => {
         calories.calories = cal.fpVal;
       });
+      
       const db = firebase.firestore();
       const performs = db.collection("performs");
       performs.doc().set({
@@ -302,6 +331,8 @@ export default {
         training: db.doc(`/trainings/${this.$store.state.trainingId}`),
         user: db.doc(`/users/${this.$store.state.uid}`),
       });
+      this.duration = this.$store.state.finalDate - this.$store.state.startDate
+      console.log(this.duration)
     },
   },
 };
