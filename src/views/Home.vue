@@ -46,13 +46,13 @@
 
           <v-spacer></v-spacer>
 
-          <v-btn icon @click="show = !show">
+          <v-btn icon @click="training.show = !training.show">
             <v-icon>{{ show ? "mdi-chevron-up" : "mdi-chevron-down" }}</v-icon>
           </v-btn>
         </v-card-actions>
 
         <v-expand-transition>
-          <div v-show="show">
+          <div v-show="training.show">
             <v-divider></v-divider>
 
             <v-card-text>
@@ -80,6 +80,25 @@
         </v-expand-transition>
       </v-card>
     </div>
+    <v-dialog v-model="warning" width="500">
+      <v-card>
+        <v-card-title class="text-h5 grey lighten-2">
+          Etes-vous prêt ?
+        </v-card-title>
+
+        <v-card-text>
+          Pensez à lancer l'entrainement sur votre montre connectée si vous en
+          avez une pour suivre votre entraînement.
+        </v-card-text>
+
+        <v-divider></v-divider>
+
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="primary" text @click="start()"> C'est parti !</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
     <v-dialog v-model="dialog">
       <!-- {{ selected }} -->
       <v-stepper alt-labels v-model="e1">
@@ -108,6 +127,11 @@
                 >{{ exo.timer }} secondes</v-card-subtitle
               >
               <v-card-text>{{ exo.exercise.description }}</v-card-text>
+              <v-progress-linear
+                v-if="exo.timer"
+                stream
+                :value="progressValue"
+              />
             </v-card>
             <v-btn
               v-if="index == selected.exercises.length - 1"
@@ -119,7 +143,7 @@
               Prochain exercice
             </v-btn>
 
-            <v-btn @click="close" text>annuler</v-btn>
+            <v-btn @click="close" text>Arrêter l'entraînement</v-btn>
           </v-stepper-content>
         </v-stepper-items>
       </v-stepper>
@@ -130,7 +154,9 @@
           Félicitation!!
         </v-card-title>
         <v-card-text class="pt-6">
-          <p class="text-center text-h6">Votre entrainement à durré {{this.duration}}</p>
+          <p class="text-center text-h6">
+            Votre entrainement à durré {{ this.duration }}
+          </p>
           <p class="text-center text-h6">Votre avez dépensé {{}} calories</p>
           <p class="text-center text-h6">Votre BPM moyen était de {{}}</p>
           <p class="text-center text-h6">Votre BPM max était de {{}}</p>
@@ -139,10 +165,8 @@
         <v-divider></v-divider>
         <v-card-actions class="justify-center">
           <v-btn color="primary" @click="close" text>Fermer</v-btn>
-
         </v-card-actions>
       </v-card>
-      
     </v-dialog>
   </v-container>
 </template>
@@ -182,7 +206,9 @@ export default {
       code: null,
       data: [],
       perfom: [],
-      duration: null
+      duration: null,
+      warning: false,
+      progressValue: 0,
     };
   },
 
@@ -197,6 +223,7 @@ export default {
         querySnapshot.forEach((doc) => {
           let obj = doc.data();
           obj.id = doc.id;
+          obj.show = false;
           this.trainings.push(obj);
           return this.getData();
         });
@@ -232,32 +259,67 @@ export default {
     next() {
       // console.log(this.e1);
       this.e1++;
+      this.progressValue = 0;
+      if (this.selected.exercises[this.e1 - 1].timer)
+        this.startTimer(this.selected.exercises[this.e1 - 1].timer);
+    },
+    start() {
+      this.warning = false;
+      this.dialog = true;
+      if (this.selected.exercises[this.e1 - 1].timer)
+        this.startTimer(this.selected.exercises[this.e1 - 1].timer);
     },
     close() {
       this.dialog = false;
       this.dialog2 = false;
     },
+    startTimer(total) {
+      let int = 100 / total;
+      let time = setInterval(() => {
+        this.progressValue += int;
+        if (this.progressValue == 100) {
+          clearInterval(time);
+          if (this.e1 == this.selected.exercises.length) return this.finish();
+          return this.next();
+        }
+      }, 1000);
+    },
+
     startTraining(obj) {
-      this.dialog = true;
-      // console.log(obj);
+      this.warning = true;
+      console.log(obj);
       this.selected = obj;
       this.$store.commit("setStartDate", new Date().getTime());
     },
     finish() {
+      this.progressValue = 0;
       this.$store.commit("setTrainingId", this.selected.id);
       this.dialog = false;
       this.$store.commit("setFinalDate", new Date().getTime());
       console.log(this.$store.state.startDate);
       console.log(this.$store.state.finalDate);
       // const self = this;
-      axios
-        .get("https://europe-west1-sportbase-38151.cloudfunctions.net/getLink")
-        .then(function (response) {
-          console.log(response.data.url);
-          // self.data = response.data.url;
-          window.location.href = response.data.url;
-          // return response.data;
-        });
+      this.e1 = 1;
+      (this.selected = {
+        title: "",
+        exercises: [
+          {
+            rep: 0,
+            timer: 0,
+            exercise: { name: "", description: "" },
+          },
+        ],
+      }),
+        axios
+          .get(
+            "https://europe-west1-sportbase-38151.cloudfunctions.net/getLink"
+          )
+          .then(function (response) {
+            console.log(response.data.url);
+            // self.data = response.data.url;
+            window.location.href = response.data.url;
+            // return response.data;
+          });
     },
     parseUrl() {
       this.url = window.location.search;
@@ -314,7 +376,7 @@ export default {
       data.calories.forEach((cal) => {
         calories.calories = cal.fpVal;
       });
-      
+
       const db = firebase.firestore();
       const performs = db.collection("performs");
       performs.doc().set({
@@ -331,8 +393,8 @@ export default {
         training: db.doc(`/trainings/${this.$store.state.trainingId}`),
         user: db.doc(`/users/${this.$store.state.uid}`),
       });
-      this.duration = this.$store.state.finalDate - this.$store.state.startDate
-      console.log(this.duration)
+      this.duration = this.$store.state.finalDate - this.$store.state.startDate;
+      console.log(this.duration);
     },
   },
 };
