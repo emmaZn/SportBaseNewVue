@@ -5,7 +5,7 @@
       <v-card
         v-for="training in trainings"
         class="mt-2"
-        v-bind:key="training.id"
+        :key="training.id"
       >
         <!-- {{training}} -->
         <v-card-title>
@@ -107,7 +107,7 @@
             v-for="(exo, index) in selected.exercises"
             :step="index + 1"
             :complete="e1 > index + 1"
-            v-bind:key="exo"
+            v-bind:key="index"
           >
             {{ exo.exercise.name }}
           </v-stepper-step>
@@ -116,7 +116,7 @@
           <v-stepper-content
             v-for="(exo, index) in selected.exercises"
             :step="index + 1"
-            v-bind:key="exo"
+            v-bind:key="index"
           >
             <v-card class="mb-12">
               <v-card-title>{{ exo.exercise.name }}</v-card-title>
