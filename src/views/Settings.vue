@@ -1,9 +1,22 @@
 <template>
-  <div class="mt-10">
+  <div>
     <Header></Header>
     <!-- A preview of the image. -->
-    <v-row justify="center">
-      <v-badge bordered color="transparent" offset-x="10" offset-y="10">
+    <v-row justify="center" class="mt-16">
+      <v-col cols="8">
+        <v-row>
+          <v-spacer></v-spacer>
+          <v-btn @click="logout" color="error"> Déconnexion </v-btn></v-row
+        >
+      </v-col></v-row
+    ><v-row justify="center">
+      <v-badge
+        bordered
+        color="transparent"
+        class="mt-16"
+        offset-x="10"
+        offset-y="10"
+      >
         <v-btn
           slot="badge"
           fab
@@ -43,25 +56,30 @@
       {{ isUploadingImage ? "Uploading..." : "Upload" }}
     </button> -->
     <!-- This is the real file input element. -->
-    <input
-      ref="imageFile"
-      @change.prevent="uploadImageFile($event.target.files)"
-      type="file"
-      accept="image/png, image/jpeg"
-      class="hidden"
-      style="display: none"
-    />
-    <v-text-field
-      v-model="$store.state.email"
-      readonly
-      label="Email"
-      class="mt-5"
-    ></v-text-field>
-    <v-text-field v-model="displayName" label="Pseudo"></v-text-field>
-    <v-row
-      ><v-btn @click="setDisplayName" color="primary">Enregistrer</v-btn></v-row
-    >
-    <v-row><v-btn @click="logout" color="error"> Déconnexion </v-btn></v-row>
+    <v-row justify="center">
+      <v-col cols="8">
+        <input
+          ref="imageFile"
+          @change.prevent="uploadImageFile($event.target.files)"
+          type="file"
+          accept="image/png, image/jpeg"
+          class="hidden"
+          style="display: none"
+        />
+        <v-text-field
+          v-model="$store.state.email"
+          readonly
+          label="Email"
+          class="mt-5"
+        ></v-text-field>
+        <v-text-field v-model="displayName" label="Pseudo"></v-text-field>
+        <v-row
+          ><v-btn @click="setDisplayName" color="primary" class="ma-auto"
+            >Enregistrer</v-btn
+          ></v-row
+        >
+      </v-col>
+    </v-row>
   </div>
 </template>
 <script>

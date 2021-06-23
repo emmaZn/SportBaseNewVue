@@ -1,67 +1,81 @@
 <template>
   <v-container>
     <Header></Header>
-    <v-card v-for="training in trainings" v-bind:key="training.id">
-      <!-- {{training}} -->
-      <v-card-title class="mt-8">
-        <v-avatar size="56">
-          <img alt="user" :src="training.user.photoURL" />
-        </v-avatar>
-        <p class="ml-3">
-          {{ training.user.displayName }} - {{ training.title }}
-        </p>
-      </v-card-title>
+    <div class="mt-16">
+      <v-card v-for="training in trainings" class="mt-2" v-bind:key="training.id">
+        <!-- {{training}} -->
+        <v-card-title>
+          <v-avatar size="56">
+            <img alt="user" :src="training.user.photoURL" />
+          </v-avatar>
+          <p class="ml-3">
+            {{ training.user.displayName }} - {{ training.title }}
+          </p>
+          <v-spacer />
+          <v-rating
+            empty-icon="mdi-arm-flex-outline"
+            full-icon="mdi-arm-flex"
+            hover
+            label="Difficulté"
+            v-model="training.difficulty"
+            length="3"
+            size="36"
+            value="1"
+            readonly
+          ></v-rating>
+        </v-card-title>
 
-      <v-card-text>{{ training.description }}</v-card-text>
-      <v-card-text v-if="training.haut == 0"
-        >Catégorie : Bas du corps</v-card-text
-      >
-      <v-card-text v-else-if="training.bas == 0"
-        >Catégorie : Haut du corps</v-card-text
-      >
-      <v-card-text v-else-if="training.bas != 0 && training.haut != 0"
-        >Catégorie : Haut et bas du corps</v-card-text
-      >
-      <v-card-actions>
-        <v-btn color="primary" text @click="startTraining(training)">
-          Lancer l'entrainement</v-btn
+        <v-card-text>{{ training.description }}</v-card-text>
+        <v-card-text v-if="training.haut == 0"
+          >Catégorie : Bas du corps</v-card-text
         >
+        <v-card-text v-else-if="training.bas == 0"
+          >Catégorie : Haut du corps</v-card-text
+        >
+        <v-card-text v-else-if="training.bas != 0 && training.haut != 0"
+          >Catégorie : Haut et bas du corps</v-card-text
+        >
+        <v-card-actions>
+          <v-btn color="primary" text @click="startTraining(training)">
+            Lancer l'entrainement</v-btn
+          >
 
-        <v-spacer></v-spacer>
+          <v-spacer></v-spacer>
 
-        <v-btn icon @click="show = !show">
-          <v-icon>{{ show ? "mdi-chevron-up" : "mdi-chevron-down" }}</v-icon>
-        </v-btn>
-      </v-card-actions>
+          <v-btn icon @click="show = !show">
+            <v-icon>{{ show ? "mdi-chevron-up" : "mdi-chevron-down" }}</v-icon>
+          </v-btn>
+        </v-card-actions>
 
-      <v-expand-transition>
-        <div v-show="show">
-          <v-divider></v-divider>
+        <v-expand-transition>
+          <div v-show="show">
+            <v-divider></v-divider>
 
-          <v-card-text>
-            <v-list dense>
-              <v-subheader>Exercices</v-subheader>
-              <v-list-item-group color="primary">
-                <v-list-item v-for="(exo, i) in training.exercises" :key="i">
-                  <!-- {{ exo }} -->
-                  <v-list-item-content>
-                    <v-list-item-title>{{
-                      exo.exercise.name
-                    }}</v-list-item-title>
-                    <v-list-item-subtitle v-if="exo.rep"
-                      >{{ exo.rep }} répétitions</v-list-item-subtitle
-                    >
-                    <v-list-item-subtitle v-if="exo.timer"
-                      >{{ exo.timer }} secondes</v-list-item-subtitle
-                    >
-                  </v-list-item-content>
-                </v-list-item>
-              </v-list-item-group>
-            </v-list>
-          </v-card-text>
-        </div>
-      </v-expand-transition>
-    </v-card>
+            <v-card-text>
+              <v-list dense>
+                <v-subheader>Exercices</v-subheader>
+                <v-list-item-group color="primary">
+                  <v-list-item v-for="(exo, i) in training.exercises" :key="i">
+                    <!-- {{ exo }} -->
+                    <v-list-item-content>
+                      <v-list-item-title>{{
+                        exo.exercise.name
+                      }}</v-list-item-title>
+                      <v-list-item-subtitle v-if="exo.rep"
+                        >{{ exo.rep }} répétitions</v-list-item-subtitle
+                      >
+                      <v-list-item-subtitle v-if="exo.timer"
+                        >{{ exo.timer }} secondes</v-list-item-subtitle
+                      >
+                    </v-list-item-content>
+                  </v-list-item>
+                </v-list-item-group>
+              </v-list>
+            </v-card-text>
+          </div>
+        </v-expand-transition>
+      </v-card>
+    </div>
     <v-dialog v-model="dialog">
       <!-- {{ selected }} -->
       <v-stepper alt-labels v-model="e1">
@@ -153,16 +167,16 @@ export default {
       .get()
       .then((querySnapshot) => {
         querySnapshot.forEach((doc) => {
-          let obj=doc.data()
-          obj.id=doc.id
+          let obj = doc.data();
+          obj.id = doc.id;
           this.trainings.push(obj);
           return this.getData();
         });
       });
-      // var time = new Date().getTime(); // get your number
-      // console.log(time);
-      // var date = new Date(time); // create Date object
-      // console.log(date);
+    // var time = new Date().getTime(); // get your number
+    // console.log(time);
+    // var date = new Date(time); // create Date object
+    // console.log(date);
 
     // const performs = db.collection("performs");
     // performs.doc().set({
@@ -177,7 +191,7 @@ export default {
     //   ),
     //   maxHeartRate: 100,
     //   training: db.doc("/trainings/Y1MYov0raqq7Bm78hVym"),
-    //   user: db.doc(`/users/${this.$store.state.uid}`), 
+    //   user: db.doc(`/users/${this.$store.state.uid}`),
     // });
   },
   methods: {
@@ -230,8 +244,7 @@ export default {
       //     window.location.href = response.data.url;
       //     // return response.data;
       //   });
-      console.log("training",this.selected)
-
+      console.log("training", this.selected);
     },
     parseUrl() {
       this.url = window.location.search;

@@ -1,7 +1,7 @@
 <template>
-  <v-app-bar :clipped-left="clipped" fixed app>
+  <v-app-bar fixed height="60">
     <router-link :to="{ name: 'Home' }"
-      ><v-app-bar-title style="width: 500px">SPORTBASE</v-app-bar-title>
+      ><h2>SPORTBASE</h2>
     </router-link>
     <!-- <v-app-bar-nav-icon @click.stop="drawer = !drawer" /> -->
     <v-spacer></v-spacer>
