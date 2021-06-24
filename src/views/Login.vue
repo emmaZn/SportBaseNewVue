@@ -98,8 +98,8 @@ export default {
     },
     loginWithFB() {
       const provider = new firebase.auth.FacebookAuthProvider();
-      provider.addScope("profile_pic");
-      provider.addScope("name");
+      // provider.addScope("profile_pic");
+      // provider.addScope("name");
 
       firebase
         .auth()

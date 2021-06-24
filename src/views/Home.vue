@@ -2,7 +2,11 @@
   <v-container>
     <Header></Header>
     <div class="ma-16">
-      <v-card v-for="training in trainings" class="mt-5 ml-16 mr-16" :key="training.id">
+      <v-card
+        v-for="training in trainings"
+        class="mt-5 ml-16 mr-16"
+        :key="training.id"
+      >
         <!-- {{training}} -->
 
         <v-card-title>
@@ -16,16 +20,16 @@
               <p class="ml-3 mb-0">
                 {{ training.user.displayName }} - {{ training.title }}
               </p>
-              <span class="pt-0 pl-3" v-if="training.haut == 0"
-                ><b>Catégorie : </b> Bas du corps</span
+              <v-card-text class="pt-0 pl-3" v-if="training.haut == 0"
+                ><b>Catégorie : </b> Bas du corps</v-card-text
               >
               <v-card-text class="pt-0 pl-3" v-else-if="training.bas == 0"
                 ><b>Catégorie : </b> Haut du corps</v-card-text
               >
-              <span
+              <v-card-text
                 class="pt-0 pl-3"
                 v-else-if="training.bas != 0 && training.haut != 0"
-                ><b>Catégorie : </b>Haut et bas du corps</span
+                ><b>Catégorie : </b>Haut et bas du corps</v-card-text
               >
             </v-col>
             <v-spacer />
@@ -152,7 +156,19 @@
             >
               FELICITATION
             </v-btn>
-            <v-btn color="primary" v-else @click="next()">
+            <v-btn
+              color="primary"
+              v-else-if="selected.exercises[index].rep"
+              @click="next()"
+            >
+              Prochain exercice
+            </v-btn>
+            <v-btn
+              color="primary"
+              disabled
+              v-else-if="selected.exercises[index].timer"
+              @click="next()"
+            >
               Prochain exercice
             </v-btn>
 
@@ -168,11 +184,21 @@
         </v-card-title>
         <v-card-text class="pt-6">
           <p class="text-center text-h6">
-            Votre entrainement à duré <span class="font-weight-bold">{{ this.formatDuration }}</span>
+            Votre entrainement à duré
+            <span class="font-weight-bold">{{ this.formatDuration }}</span>
           </p>
-          <p class="text-center text-h6">Votre avez dépensé <span class="font-weight-bold">{{this.calories}}</span>  calories</p>
-          <p class="text-center text-h6">Votre BPM moyen était de <span class="font-weight-bold">{{this.bpm.moy}}</span> </p>
-          <p class="text-center text-h6">Votre BPM max était de <span class="font-weight-bold">{{this.bpm.max}}</span> </p>
+          <p class="text-center text-h6">
+            Votre avez dépensé
+            <span class="font-weight-bold">{{ this.calories }}</span> calories
+          </p>
+          <p class="text-center text-h6">
+            Votre BPM moyen était de
+            <span class="font-weight-bold">{{ this.bpm.moy }}</span>
+          </p>
+          <p class="text-center text-h6">
+            Votre BPM max était de
+            <span class="font-weight-bold">{{ this.bpm.max }}</span>
+          </p>
         </v-card-text>
 
         <v-divider></v-divider>
@@ -222,10 +248,10 @@ export default {
       duration: null,
       warning: false,
       progressValue: 0,
-      formatDuration:null,
-      bpm : {
+      formatDuration: null,
+      bpm: {
         moy: null,
-        max: null
+        max: null,
       },
       calories: null,
       timeLeft: 100,
@@ -312,7 +338,7 @@ export default {
       let time = setInterval(() => {
         this.progressValue += int;
         if (this.timeLeft > 0) this.timeLeft -= 1;
-        if (this.progressValue == 120) {
+        if (this.progressValue == 110) {
           clearInterval(time);
           if (this.e1 == this.selected.exercises.length) return this.finish();
           return this.next();
@@ -367,9 +393,9 @@ export default {
       }
     },
     async getGoogleFitData(code) {
-      console.log(code)
-      console.log(this.$store.state.startDate)
-      console.log(this.$store.state.finalDate)
+      console.log(code);
+      console.log(this.$store.state.startDate);
+      console.log(this.$store.state.finalDate);
       const self = this;
       var data = JSON.stringify({
         code: code,
@@ -391,7 +417,7 @@ export default {
         .catch(function (error) {
           console.log(error);
         });
-        self.sendGoogleFitData(this.data);
+      self.sendGoogleFitData(this.data);
     },
     sendGoogleFitData(data) {
       var bpm = [];
@@ -410,10 +436,10 @@ export default {
       data.calories.forEach((cal) => {
         calories.calories = cal.fpVal;
       });
-      this.bpm.moy = Math.floor(bpm.moy)
-      this.bpm.max = Math.floor(bpm.max)
-      this.calories = Math.floor(calories.calories)
-      this.formatTime()
+      this.bpm.moy = Math.floor(bpm.moy);
+      this.bpm.max = Math.floor(bpm.max);
+      this.calories = Math.floor(calories.calories);
+      this.formatTime();
 
       const db = firebase.firestore();
       const performs = db.collection("performs");
@@ -431,30 +457,36 @@ export default {
         training: db.doc(`/trainings/${this.$store.state.trainingId}`),
         user: db.doc(`/users/${this.$store.state.uid}`),
       });
-      this.dialog2 = true
+      this.dialog2 = true;
     },
     formatTime() {
       this.duration = this.$store.state.finalDate - this.$store.state.startDate;
-      console.log(this.$store.state.finalDate );
+      console.log(this.$store.state.finalDate);
       console.log(this.$store.state.startDate);
       console.log(this.duration);
-      var ms = this.duration // don't forget the second param
-      var hours   = Math.floor(ms / 360000);
-      var minutes = Math.floor((ms - (hours * 360000)) / 60000);
-      var seconds = Math.floor((ms - (hours * 360000) - (minutes * 60000)) / 1000);
+      var ms = this.duration; // don't forget the second param
+      var hours = Math.floor(ms / 360000);
+      var minutes = Math.floor((ms - hours * 360000) / 60000);
+      var seconds = Math.floor((ms - hours * 360000 - minutes * 60000) / 1000);
 
-      if (hours   < 10) {hours   = "0"+hours;}
-      if (minutes < 10) {minutes = "0"+minutes;}
-      if (seconds < 10) {seconds = "0"+seconds;}
-      this.formatDuration = minutes+' min '+seconds+' secondes'
-      console.log( this.formatDuration);
-    }
+      if (hours < 10) {
+        hours = "0" + hours;
+      }
+      if (minutes < 10) {
+        minutes = "0" + minutes;
+      }
+      if (seconds < 10) {
+        seconds = "0" + seconds;
+      }
+      this.formatDuration = minutes + " min " + seconds + " secondes";
+      console.log(this.formatDuration);
+    },
   },
 };
 </script>
 
 <style scoped>
 .title {
-  color: white!important;
+  color: white !important;
 }
 </style>
