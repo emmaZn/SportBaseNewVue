@@ -7,15 +7,14 @@
         <h2>Register</h2>
       </v-row>
       <v-col class="mx-auto pt-8" cols="3">
-        <v-text-field type="email" label="Adresse email" v-model="email" />
+        <v-text-field dark type="email" label="Adresse email" v-model="email" />
       </v-col>
       <v-col class="mx-auto" cols="3">
-        <v-text-field type="password" label="Mot de passe" v-model="password" />
+        <v-text-field dark type="password" label="Mot de passe" v-model="password" />
       </v-col>
       <div class="d-flex justify-center pt-8">
-        <v-btn min-width="250" color="">
-          <button type="submit">REGISTER</button>
-        </v-btn>
+        <v-btn min-width="250" color="" type="submit" @click="register">
+         Inscription</v-btn>
       </div>
       <div class="d-flex justify-center">
       <router-link :to="{name:'Login'}">
@@ -59,15 +58,16 @@ export default {
           };
           user.sendEmailVerification(actionCodeSettings);
           const db = firebase.firestore();
+          console.log("user", user)
           db.collection("users")
             .doc(user.uid)
             .set({
-              photoURL: user.photoURL,
-              displayName: user.displayName,
+              // photoURL: user.photoURL,
+              // displayName: user.displayName,
               email: user.email,
             })
             .then((docRef) => {
-              console.log("Document written with ID: ", docRef.id);
+              console.log("Document written with ID: ", docRef);
               this.snackbar = true;
             })
             .catch((error) => {

@@ -62,7 +62,7 @@
             >
           </v-card>
           <div class="mt-5 ml-4">
-            <v-row v-for="exo in object.exercises" :key="exo">
+            <v-row v-for="(exo, index) in object.exercises" :key="index">
               - {{ exo.name }} :
               <span v-if="exo.timer"> {{ exo.timer }} secondes </span
               ><span v-if="exo.rep"> {{ exo.rep }} répétitions </span>
