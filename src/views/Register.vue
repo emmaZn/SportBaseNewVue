@@ -27,6 +27,9 @@ export default {
       snackbar: false,
     };
   },
+  mounted() {
+    if (this.$store.state.uid) return this.$router.push({ name: "Home" });
+  },
   methods: {
     register() {
       firebase

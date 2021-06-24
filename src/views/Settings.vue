@@ -97,6 +97,9 @@ export default {
       displayName: this.$store.state.displayName,
     };
   },
+  mounted() {
+    if (!this.$store.state.uid) return this.$router.push({ name: "Login" });
+  },
   methods: {
     launchImageFile() {
       // Trigger the file input click event.
@@ -151,7 +154,7 @@ export default {
             console.log(error);
           });
         const db = firebase.firestore();
-        db.collection("cities").doc(user.uid).update({
+        db.collection("users").doc(user.uid).update({
           photoURL: url,
         });
         this.isUploadingImage = false;

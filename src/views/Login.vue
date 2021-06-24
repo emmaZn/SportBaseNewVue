@@ -30,6 +30,9 @@ export default {
       password: "",
     };
   },
+  mounted(){
+    if (this.$store.state.uid) return this.$router.push({ name: "Home" });
+  },
   methods: {
     loginWithGoogle() {
       const provider = new firebase.auth.GoogleAuthProvider();
