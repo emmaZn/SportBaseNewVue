@@ -6,10 +6,11 @@
       <v-col cols="8">
         <v-row>
           <v-spacer></v-spacer>
-          <v-btn @click="logout" color="error"> Déconnexion </v-btn></v-row
-        >
-      </v-col></v-row
-    ><v-row justify="center">
+          <v-btn @click="logout" color="error"> Déconnexion </v-btn>
+        </v-row>
+      </v-col>
+    </v-row>
+    <v-row justify="center">
       <v-badge
         bordered
         color="transparent"
@@ -28,7 +29,7 @@
         >
           <v-icon> mdi-pen </v-icon>
         </v-btn>
-        <v-avatar size="180">
+        <v-avatar size="90">
           <v-img
             :src="$store.state.photoURL"
             aspect-ratio="1"

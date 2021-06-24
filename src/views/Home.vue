@@ -1,13 +1,8 @@
 <template>
   <v-container>
     <Header></Header>
-<<<<<<< HEAD
-    <div class="mt-16">
-      <v-card v-for="training in trainings" class="mt-2" :key="training.id">
-=======
     <div class="ma-16">
       <v-card v-for="training in trainings" class="mt-5 ml-16 mr-16" :key="training.id">
->>>>>>> 66679e32182f6e1234f196548fe57c061c2a9659
         <!-- {{training}} -->
 
         <v-card-title>
@@ -168,7 +163,7 @@
     </v-dialog>
     <v-dialog v-model="dialog2" max-width="800">
       <v-card>
-        <v-card-title class="text-h4 justify-center text-center dark primary">
+        <v-card-title class="title text-h4 justify-center text-center primary">
           Félicitation!!
         </v-card-title>
         <v-card-text class="pt-6">
@@ -457,3 +452,9 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+.title {
+  color: white!important;
+}
+</style>
