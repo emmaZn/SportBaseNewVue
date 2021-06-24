@@ -12,35 +12,35 @@
     </v-row>
     <v-row justify="center">
       <v-col cols="2">
-      <v-badge
-        bordered
-        color="transparent"
-        class="mt-16"
-        offset-x="10"
-        offset-y="10"
-      >
-        <v-btn
-          slot="badge"
-          fab
-          small
-          style="z-index: 1"
-          @click="launchImageFile"
-          :disabled="isUploadingImage"
-          type="button"
+        <v-badge
+          bordered
+          color="transparent"
+          class="mt-16"
+          offset-x="10"
+          offset-y="10"
         >
-          <v-icon> mdi-pen </v-icon>
-        </v-btn>
-        <v-avatar size="90">
-          <v-img
-            :src="$store.state.photoURL"
-            aspect-ratio="1"
-            rounded
+          <v-btn
+            slot="badge"
+            fab
+            small
+            style="z-index: 1"
             @click="launchImageFile"
             :disabled="isUploadingImage"
             type="button"
-          />
-        </v-avatar>
-      </v-badge>
+          >
+            <v-icon> mdi-pen </v-icon>
+          </v-btn>
+          <v-avatar size="90">
+            <v-img
+              :src="$store.state.photoURL"
+              aspect-ratio="1"
+              rounded
+              @click="launchImageFile"
+              :disabled="isUploadingImage"
+              type="button"
+            />
+          </v-avatar>
+        </v-badge>
       </v-col>
       <v-col cols="8">
         <input
@@ -65,17 +65,28 @@
         >
       </v-col>
     </v-row>
+    <p class="text-h4 pt-12 pl-4">Liste de mes performances</p>
     <div class="d-flex flex-wrap justify-space-around pt-12">
-      <div v-for="perform in performs" :key="perform.id">
-        <p>BPM moyen{{perform.averageHeartRate}}</p>
-        <p>calories dépensées {{perform.calories}}</p>
-        <p>calories dépensées {{perform.calories}}</p>
-        
-      </div>
+      <v-card
+        class="mb-8"
+        width="370"
+        v-for="perform in performs"
+        :key="perform.id"
+      >
+        <v-card-title class="title justify-center text-center primary">
+          {{ perform.training.title }}
+        </v-card-title>
+        <v-card-text class="pt-2">
+          <p>
+            L'entraînement du <span class="font-weight-bold">{{ formatDate(perform.createdAt.toDate()) }}  </span> à
+            duré <span class="font-weight-bold">{{ formatTime(perform.duration) }} </span>
+          </p>
+          <p class="pt-2">BPM moyen <span class="font-weight-bold">{{ perform.averageHeartRate }} </span></p>
+          <p>BPM max <span class="font-weight-bold">{{ perform.maxHeartRate }} </span></p>
+          <p>calories dépensées <span class="font-weight-bold">{{ perform.calories }} </span></p>
+        </v-card-text>
+      </v-card>
     </div>
-    <v-row>
-      
-    </v-row>
   </div>
 </template>
 <script>
@@ -92,12 +103,15 @@ export default {
       isDeletingImage: false,
       displayName: this.$store.state.displayName,
       performs: [],
+      formatDuration: null,
     };
   },
   mounted() {
     if (!this.$store.state.uid) return this.$router.push({ name: "Login" });
     const db = firebase.firestore();
+    let ref = db.doc("users/" + this.$store.state.uid);
     db.collection("performs")
+      .where("user", "==", ref)
       .get()
       .then((querySnapshot) => {
         querySnapshot.forEach((doc) => {
@@ -105,10 +119,11 @@ export default {
           obj.id = doc.id;
           obj.show = false;
           this.performs.push(obj);
-          // return this.getData();
+          return this.getData();
         });
       });
-      console.log(this.performs);
+    console.log(this.performs);
+    // console.log(firebase.firestore.FieldValue.serverTimestamp().toDate())
   },
   methods: {
     launchImageFile() {
@@ -209,13 +224,58 @@ export default {
           this.$store.commit("setDisplayName", this.displayName);
         });
     },
+    getData() {
+      const db = firebase.firestore();
+      this.performs.forEach((doc) => {
+        db.collection("users")
+          .doc(doc.user.id)
+          .get()
+          .then((res) => {
+            // console.log("user", res.data());
+            doc.user = res.data();
+          });
+        db.collection("trainings")
+          .doc(doc.training.id)
+          .get()
+          .then((res) => {
+            // console.log("user", res.data());
+            doc.training = res.data();
+          });
+      });
+    },
+    formatTime(date) {
+      var ms = date; // don't forget the second param
+      var hours = Math.floor(ms / 360000);
+      var minutes = Math.floor((ms - hours * 360000) / 60000);
+      var seconds = Math.floor((ms - hours * 360000 - minutes * 60000) / 1000);
+
+      if (hours < 10) {
+        hours = "0" + hours;
+      }
+      if (minutes < 10) {
+        minutes = "0" + minutes;
+      }
+      if (seconds < 10) {
+        seconds = "0" + seconds;
+      }
+      return minutes + " min " + seconds + " secondes";
+    },
+    formatDate(date) {
+      var moment = require("moment");
+      console.log(moment(date, "MM-DD-YYYY"));
+      return moment(date).format("DD/MM/YYYY");
+    },
   },
 };
 </script>
 
 <style scoped>
-p{
+p {
   margin: 0;
   padding: 0;
-} 
+}
+
+.title {
+  color: white !important;
+}
 </style>

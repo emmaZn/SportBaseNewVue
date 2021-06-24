@@ -29,7 +29,6 @@
     <div class="d-flex justify-center">
       <router-link :to="{name:'Register'}">
         <v-btn color="primary" min-width="250" class="mt-5">Inscription</v-btn>
-
       </router-link>
     </div>
     <div class="d-flex justify-center pt-4">
