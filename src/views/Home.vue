@@ -1,40 +1,55 @@
 <template>
   <v-container>
     <Header></Header>
+<<<<<<< HEAD
     <div class="mt-16">
       <v-card v-for="training in trainings" class="mt-2" :key="training.id">
+=======
+    <div class="ma-16">
+      <v-card v-for="training in trainings" class="mt-5 ml-16 mr-16" :key="training.id">
+>>>>>>> 66679e32182f6e1234f196548fe57c061c2a9659
         <!-- {{training}} -->
+
         <v-card-title>
-          <v-avatar size="56">
-            <img alt="user" :src="training.user.photoURL" />
-          </v-avatar>
-          <p class="ml-3">
-            {{ training.user.displayName }} - {{ training.title }}
-          </p>
-          <v-spacer />
-          <v-rating
-            empty-icon="mdi-arm-flex-outline"
-            full-icon="mdi-arm-flex"
-            hover
-            label="Difficulté"
-            v-model="training.difficulty"
-            length="3"
-            size="36"
-            value="1"
-            readonly
-          ></v-rating>
+          <v-row>
+            <v-col cols="1">
+              <v-avatar size="56">
+                <img alt="user" :src="training.user.photoURL" />
+              </v-avatar>
+            </v-col>
+            <v-col cols="8" class="pl-0">
+              <p class="ml-3 mb-0">
+                {{ training.user.displayName }} - {{ training.title }}
+              </p>
+              <span class="pt-0 pl-3" v-if="training.haut == 0"
+                ><b>Catégorie : </b> Bas du corps</span
+              >
+              <v-card-text class="pt-0 pl-3" v-else-if="training.bas == 0"
+                ><b>Catégorie : </b> Haut du corps</v-card-text
+              >
+              <span
+                class="pt-0 pl-3"
+                v-else-if="training.bas != 0 && training.haut != 0"
+                ><b>Catégorie : </b>Haut et bas du corps</span
+              >
+            </v-col>
+            <v-spacer />
+            <v-rating
+              empty-icon="mdi-arm-flex-outline"
+              full-icon="mdi-arm-flex"
+              hover
+              label="Difficulté"
+              v-model="training.difficulty"
+              length="3"
+              size="36"
+              value="1"
+              readonly
+            ></v-rating>
+          </v-row>
         </v-card-title>
 
         <v-card-text>{{ training.description }}</v-card-text>
-        <v-card-text v-if="training.haut == 0"
-          >Catégorie : Bas du corps</v-card-text
-        >
-        <v-card-text v-else-if="training.bas == 0"
-          >Catégorie : Haut du corps</v-card-text
-        >
-        <v-card-text v-else-if="training.bas != 0 && training.haut != 0"
-          >Catégorie : Haut et bas du corps</v-card-text
-        >
+
         <v-card-actions>
           <v-btn color="primary" text @click="startTraining(training)">
             Lancer l'entrainement</v-btn
@@ -95,7 +110,7 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-    <v-dialog v-model="dialog">
+    <v-dialog v-model="dialog" width="1000">
       <!-- {{ selected }} -->
       <v-stepper alt-labels v-model="e1">
         <v-stepper-header>
@@ -123,9 +138,16 @@
                 >{{ exo.timer }} secondes</v-card-subtitle
               >
               <v-card-text>{{ exo.exercise.description }}</v-card-text>
+              <v-row
+                ><v-spacer></v-spacer>
+                <h1 class="mr-5" v-if="exo.timer">{{ timeLeft }}</h1></v-row
+              >
               <v-progress-linear
+                class="mt-5"
                 v-if="exo.timer"
                 stream
+                height="10"
+                buffer-value="0"
                 :value="progressValue"
               />
             </v-card>
@@ -146,7 +168,7 @@
     </v-dialog>
     <v-dialog v-model="dialog2" max-width="800">
       <v-card>
-        <v-card-title class="text-h4 justify-center text-center primary">
+        <v-card-title class="text-h4 justify-center text-center dark primary">
           Félicitation!!
         </v-card-title>
         <v-card-text class="pt-6">
@@ -210,7 +232,8 @@ export default {
         moy: null,
         max: null
       },
-      calories: null
+      calories: null,
+      timeLeft: 100,
     };
   },
 
@@ -274,12 +297,27 @@ export default {
     close() {
       this.dialog = false;
       this.dialog2 = false;
+      this.e1 = 1;
+      clearInterval();
+      this.selected = {
+        title: "",
+        exercises: [
+          {
+            rep: 0,
+            timer: 0,
+            exercise: { name: "", description: "" },
+          },
+        ],
+      };
     },
+
     startTimer(total) {
+      this.timeLeft = total;
       let int = 100 / total;
       let time = setInterval(() => {
         this.progressValue += int;
-        if (this.progressValue == 100) {
+        if (this.timeLeft > 0) this.timeLeft -= 1;
+        if (this.progressValue == 120) {
           clearInterval(time);
           if (this.e1 == this.selected.exercises.length) return this.finish();
           return this.next();
