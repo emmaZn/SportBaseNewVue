@@ -2,11 +2,7 @@
   <v-container>
     <Header></Header>
     <div class="mt-16">
-      <v-card
-        v-for="training in trainings"
-        class="mt-2"
-        :key="training.id"
-      >
+      <v-card v-for="training in trainings" class="mt-2" :key="training.id">
         <!-- {{training}} -->
         <v-card-title>
           <v-avatar size="56">
@@ -155,11 +151,11 @@
         </v-card-title>
         <v-card-text class="pt-6">
           <p class="text-center text-h6">
-            Votre entrainement à durré {{ this.duration }}
+            Votre entrainement à duré <span class="font-weight-bold">{{ this.formatDuration }}</span>
           </p>
-          <p class="text-center text-h6">Votre avez dépensé {{}} calories</p>
-          <p class="text-center text-h6">Votre BPM moyen était de {{}}</p>
-          <p class="text-center text-h6">Votre BPM max était de {{}}</p>
+          <p class="text-center text-h6">Votre avez dépensé <span class="font-weight-bold">{{this.calories}}</span>  calories</p>
+          <p class="text-center text-h6">Votre BPM moyen était de <span class="font-weight-bold">{{this.bpm.moy}}</span> </p>
+          <p class="text-center text-h6">Votre BPM max était de <span class="font-weight-bold">{{this.bpm.max}}</span> </p>
         </v-card-text>
 
         <v-divider></v-divider>
@@ -209,6 +205,12 @@ export default {
       duration: null,
       warning: false,
       progressValue: 0,
+      formatDuration:null,
+      bpm : {
+        moy: null,
+        max: null
+      },
+      calories: null
     };
   },
 
@@ -323,8 +325,8 @@ export default {
     },
     parseUrl() {
       this.url = window.location.search;
-      console.log(this.url);
       if (this.url) {
+        console.log(this.url);
         const queryURL = new urlParse(this.url);
         const code = queryParse.parse(queryURL.query).code;
         // console.log("code", code);
@@ -332,32 +334,31 @@ export default {
       }
     },
     async getGoogleFitData(code) {
+      console.log(code)
+      console.log(this.$store.state.startDate)
+      console.log(this.$store.state.finalDate)
       const self = this;
-      if (code) {
-        var data = JSON.stringify({
-          code: code,
-          startTimeMillis: this.$store.state.startDate,
-          endTimeMillis: this.$store.state.finalDate,
+      var data = JSON.stringify({
+        code: code,
+        startTimeMillis: this.$store.state.startDate,
+        endTimeMillis: this.$store.state.finalDate,
+      });
+      var config = {
+        method: "post",
+        url: "https://europe-west1-sportbase-38151.cloudfunctions.net/postData",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        data: data,
+      };
+      await axios(config)
+        .then(function (response) {
+          self.data = response.data;
+        })
+        .catch(function (error) {
+          console.log(error);
         });
-        var config = {
-          method: "post",
-          url: "https://europe-west1-sportbase-38151.cloudfunctions.net/postData",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          data: data,
-        };
-        await axios(config)
-          .then(function (response) {
-            // self.data = response.data;
-            self.sendGoogleFitData(response.data);
-          })
-          .catch(function (error) {
-            console.log(error);
-          });
-      } else {
-        console.log("no code");
-      }
+        self.sendGoogleFitData(this.data);
     },
     sendGoogleFitData(data) {
       var bpm = [];
@@ -376,12 +377,16 @@ export default {
       data.calories.forEach((cal) => {
         calories.calories = cal.fpVal;
       });
+      this.bpm.moy = Math.floor(bpm.moy)
+      this.bpm.max = Math.floor(bpm.max)
+      this.calories = Math.floor(calories.calories)
+      this.formatTime()
 
       const db = firebase.firestore();
       const performs = db.collection("performs");
       performs.doc().set({
-        averageHeartRate: bpm.moy,
-        calories: calories.calories,
+        averageHeartRate: Math.floor(bpm.moy),
+        calories: Math.floor(calories.calories),
         createdAt: firebase.firestore.Timestamp.fromDate(
           new Date(this.$store.state.startDate)
         ),
@@ -389,13 +394,28 @@ export default {
         endAt: firebase.firestore.Timestamp.fromDate(
           new Date(this.$store.state.finalDate)
         ),
-        maxHeartRate: bpm.max,
+        maxHeartRate: Math.floor(bpm.max),
         training: db.doc(`/trainings/${this.$store.state.trainingId}`),
         user: db.doc(`/users/${this.$store.state.uid}`),
       });
-      this.duration = this.$store.state.finalDate - this.$store.state.startDate;
-      console.log(this.duration);
+      this.dialog2 = true
     },
+    formatTime() {
+      this.duration = this.$store.state.finalDate - this.$store.state.startDate;
+      console.log(this.$store.state.finalDate );
+      console.log(this.$store.state.startDate);
+      console.log(this.duration);
+      var ms = this.duration // don't forget the second param
+      var hours   = Math.floor(ms / 360000);
+      var minutes = Math.floor((ms - (hours * 360000)) / 60000);
+      var seconds = Math.floor((ms - (hours * 360000) - (minutes * 60000)) / 1000);
+
+      if (hours   < 10) {hours   = "0"+hours;}
+      if (minutes < 10) {minutes = "0"+minutes;}
+      if (seconds < 10) {seconds = "0"+seconds;}
+      this.formatDuration = minutes+' min '+seconds+' secondes'
+      console.log( this.formatDuration);
+    }
   },
 };
 </script>
