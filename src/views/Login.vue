@@ -1,23 +1,39 @@
 <template>
   <v-container fluid class="bg">
     <v-row justify="center" class="pt-6"> <h1>SPORTBASE</h1></v-row>
-    <v-form>
+    <v-form class="pt-12 mt-8">
       <v-row class="ma-5" justify="center">
-        <v-btn min-width="250" @click="loginWithGoogle">Connexion Google</v-btn>
+        <v-btn min-width="250" @click="loginWithGoogle" class="justify-space-around">
+          <img width="25" src="@/assets/google.png" alt="">
+          <div>
+            Connexion Google
+          </div>
+          </v-btn>
       </v-row>
       <v-row class="ma-5" justify="center">
-        <v-btn min-width="250" @click="loginWithFB">Connexion Facebook</v-btn>
+        <v-btn min-width="250" @click="loginWithFB">
+          <img width="35" src="@/assets/facebook.png" alt="">
+          <div>
+            Connexion Facebook
+          </div>
+        </v-btn>
       </v-row>
-      <v-col class="mx-auto" cols="3">
+      <v-col class="mx-auto pt-8" cols="3">
         <v-text-field dark v-model="email" label="Mail"></v-text-field>
         <v-text-field dark v-model="password" label="Mot de passe"></v-text-field>
       </v-col>
-      <div class="d-flex justify-center">
+      <div class="d-flex justify-center pt-8">
         <v-btn min-width="250" @click="submit">Connexion</v-btn>
       </div>
     </v-form>
     <div class="d-flex justify-center">
-      <v-btn min-width="250" class="mt-5">Inscription</v-btn>
+      <router-link :to="{name:'Register'}">
+        <v-btn color="primary" min-width="250" class="mt-5">Inscription</v-btn>
+
+      </router-link>
+    </div>
+    <div class="d-flex justify-center pt-4">
+      <p class="dark">Mot de passe oublié?</p>
     </div>
   </v-container>
 </template>
