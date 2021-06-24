@@ -1,40 +1,50 @@
 <template>
   <v-container>
     <Header></Header>
-    <div class="mt-16">
-      <v-card v-for="training in trainings" class="mt-2" :key="training.id">
+    <div class="ma-16">
+      <v-card v-for="training in trainings" class="mt-5 ml-16 mr-16" :key="training.id">
         <!-- {{training}} -->
+
         <v-card-title>
-          <v-avatar size="56">
-            <img alt="user" :src="training.user.photoURL" />
-          </v-avatar>
-          <p class="ml-3">
-            {{ training.user.displayName }} - {{ training.title }}
-          </p>
-          <v-spacer />
-          <v-rating
-            empty-icon="mdi-arm-flex-outline"
-            full-icon="mdi-arm-flex"
-            hover
-            label="Difficulté"
-            v-model="training.difficulty"
-            length="3"
-            size="36"
-            value="1"
-            readonly
-          ></v-rating>
+          <v-row>
+            <v-col cols="1">
+              <v-avatar size="56">
+                <img alt="user" :src="training.user.photoURL" />
+              </v-avatar>
+            </v-col>
+            <v-col cols="8" class="pl-0">
+              <p class="ml-3 mb-0">
+                {{ training.user.displayName }} - {{ training.title }}
+              </p>
+              <span class="pt-0 pl-3" v-if="training.haut == 0"
+                ><b>Catégorie : </b> Bas du corps</span
+              >
+              <v-card-text class="pt-0 pl-3" v-else-if="training.bas == 0"
+                ><b>Catégorie : </b> Haut du corps</v-card-text
+              >
+              <span
+                class="pt-0 pl-3"
+                v-else-if="training.bas != 0 && training.haut != 0"
+                ><b>Catégorie : </b>Haut et bas du corps</span
+              >
+            </v-col>
+            <v-spacer />
+            <v-rating
+              empty-icon="mdi-arm-flex-outline"
+              full-icon="mdi-arm-flex"
+              hover
+              label="Difficulté"
+              v-model="training.difficulty"
+              length="3"
+              size="36"
+              value="1"
+              readonly
+            ></v-rating>
+          </v-row>
         </v-card-title>
 
         <v-card-text>{{ training.description }}</v-card-text>
-        <v-card-text v-if="training.haut == 0"
-          >Catégorie : Bas du corps</v-card-text
-        >
-        <v-card-text v-else-if="training.bas == 0"
-          >Catégorie : Haut du corps</v-card-text
-        >
-        <v-card-text v-else-if="training.bas != 0 && training.haut != 0"
-          >Catégorie : Haut et bas du corps</v-card-text
-        >
+
         <v-card-actions>
           <v-btn color="primary" text @click="startTraining(training)">
             Lancer l'entrainement</v-btn
@@ -95,7 +105,7 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-    <v-dialog v-model="dialog"  width="1000">
+    <v-dialog v-model="dialog" width="1000">
       <!-- {{ selected }} -->
       <v-stepper alt-labels v-model="e1">
         <v-stepper-header>
@@ -125,7 +135,7 @@
               <v-card-text>{{ exo.exercise.description }}</v-card-text>
               <v-row
                 ><v-spacer></v-spacer>
-                <h2 class="mr-5" v-if="exo.timer">{{ timeLeft }}</h2></v-row
+                <h1 class="mr-5" v-if="exo.timer">{{ timeLeft }}</h1></v-row
               >
               <v-progress-linear
                 class="mt-5"
