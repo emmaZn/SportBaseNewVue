@@ -1,23 +1,25 @@
 <template>
-  <div class="bg">
-    <v-container dark>
-      <v-row justify="center"> <h1>SPORTBASE</h1></v-row>
-
-      <v-form>
-        <v-row class="ma-5" justify="center">
-          <v-btn @click="loginWithGoogle">Connexion Google</v-btn>
-        </v-row>
-        <v-row class="ma-5" justify="center">
-          <v-btn @click="loginWithFB">Connexion Facebook</v-btn>
-        </v-row>
+  <v-container fluid class="bg">
+    <v-row justify="center" class="pt-6"> <h1>SPORTBASE</h1></v-row>
+    <v-form>
+      <v-row class="ma-5" justify="center">
+        <v-btn min-width="250" @click="loginWithGoogle">Connexion Google</v-btn>
+      </v-row>
+      <v-row class="ma-5" justify="center">
+        <v-btn min-width="250" @click="loginWithFB">Connexion Facebook</v-btn>
+      </v-row>
+      <v-col class="mx-auto" cols="3">
         <v-text-field dark v-model="email" label="Mail"></v-text-field>
         <v-text-field dark v-model="password" label="Mot de passe"></v-text-field>
-        <v-btn @click="submit">Connexion</v-btn>
-      </v-form>
-
-      <v-btn class="mt-5">Inscription</v-btn>
-    </v-container>
-  </div>
+      </v-col>
+      <div class="d-flex justify-center">
+        <v-btn min-width="250" @click="submit">Connexion</v-btn>
+      </div>
+    </v-form>
+    <div class="d-flex justify-center">
+      <v-btn min-width="250" class="mt-5">Inscription</v-btn>
+    </div>
+  </v-container>
 </template>
 
 <script>
@@ -154,8 +156,8 @@ export default {
 <style scoped>
 .bg {
   background: linear-gradient(168.29deg, #007991 0%, #2f3637 126.15%);
-  height: 100%;
-  width: 100%;
+  height: 100vh;
+  width: 100vw;
 }
 h1 {
   font-size: 3em;

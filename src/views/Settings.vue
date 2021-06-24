@@ -6,10 +6,12 @@
       <v-col cols="8">
         <v-row>
           <v-spacer></v-spacer>
-          <v-btn @click="logout" color="error"> Déconnexion </v-btn></v-row
-        >
-      </v-col></v-row
-    ><v-row justify="center">
+          <v-btn @click="logout" color="error"> Déconnexion </v-btn>
+        </v-row>
+      </v-col>
+    </v-row>
+    <v-row justify="center">
+      <v-col cols="2">
       <v-badge
         bordered
         color="transparent"
@@ -28,7 +30,7 @@
         >
           <v-icon> mdi-pen </v-icon>
         </v-btn>
-        <v-avatar size="180">
+        <v-avatar size="90">
           <v-img
             :src="$store.state.photoURL"
             aspect-ratio="1"
@@ -39,24 +41,7 @@
           />
         </v-avatar>
       </v-badge>
-    </v-row>
-    <!-- Delete button for deleting the image. -->
-    <!-- <button
-      v-if="$store.state.photoURL"
-      @click="deleteImage"
-      :disabled="isDeletingImage"
-      type="button"
-      class="bg-red-500 border-red-300 text-white"
-    >
-      {{ isDeletingImage ? "Deleting..." : "Delete" }}
-    </button> -->
-
-    <!-- Clicking this button triggers the "click" event of the file input. -->
-    <!-- <button @click="launchImageFile" :disabled="isUploadingImage" type="button">
-      {{ isUploadingImage ? "Uploading..." : "Upload" }}
-    </button> -->
-    <!-- This is the real file input element. -->
-    <v-row justify="center">
+      </v-col>
       <v-col cols="8">
         <input
           ref="imageFile"
@@ -80,6 +65,17 @@
         >
       </v-col>
     </v-row>
+    <div class="d-flex flex-wrap justify-space-around pt-12">
+      <div v-for="perform in performs" :key="perform.id">
+        <p>BPM moyen{{perform.averageHeartRate}}</p>
+        <p>calories dépensées {{perform.calories}}</p>
+        <p>calories dépensées {{perform.calories}}</p>
+        
+      </div>
+    </div>
+    <v-row>
+      
+    </v-row>
   </div>
 </template>
 <script>
@@ -95,10 +91,24 @@ export default {
       isUploadingImage: false,
       isDeletingImage: false,
       displayName: this.$store.state.displayName,
+      performs: [],
     };
   },
   mounted() {
     if (!this.$store.state.uid) return this.$router.push({ name: "Login" });
+    const db = firebase.firestore();
+    db.collection("performs")
+      .get()
+      .then((querySnapshot) => {
+        querySnapshot.forEach((doc) => {
+          let obj = doc.data();
+          obj.id = doc.id;
+          obj.show = false;
+          this.performs.push(obj);
+          // return this.getData();
+        });
+      });
+      console.log(this.performs);
   },
   methods: {
     launchImageFile() {
@@ -202,3 +212,10 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+p{
+  margin: 0;
+  padding: 0;
+} 
+</style>

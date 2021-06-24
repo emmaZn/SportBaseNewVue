@@ -149,8 +149,9 @@
             <v-btn
               v-if="index == selected.exercises.length - 1"
               @click="finish()"
-              >FELICITATION</v-btn
             >
+              FELICITATION
+            </v-btn>
             <v-btn color="primary" v-else @click="next()">
               Prochain exercice
             </v-btn>
@@ -159,6 +160,26 @@
           </v-stepper-content>
         </v-stepper-items>
       </v-stepper>
+    </v-dialog>
+    <v-dialog v-model="dialog2" max-width="800">
+      <v-card>
+        <v-card-title class="title text-h4 justify-center text-center primary">
+          Félicitation!!
+        </v-card-title>
+        <v-card-text class="pt-6">
+          <p class="text-center text-h6">
+            Votre entrainement à duré <span class="font-weight-bold">{{ this.formatDuration }}</span>
+          </p>
+          <p class="text-center text-h6">Votre avez dépensé <span class="font-weight-bold">{{this.calories}}</span>  calories</p>
+          <p class="text-center text-h6">Votre BPM moyen était de <span class="font-weight-bold">{{this.bpm.moy}}</span> </p>
+          <p class="text-center text-h6">Votre BPM max était de <span class="font-weight-bold">{{this.bpm.max}}</span> </p>
+        </v-card-text>
+
+        <v-divider></v-divider>
+        <v-card-actions class="justify-center">
+          <v-btn color="primary" @click="close" text>Fermer</v-btn>
+        </v-card-actions>
+      </v-card>
     </v-dialog>
   </v-container>
 </template>
@@ -193,12 +214,20 @@ export default {
         ],
       },
       dialog: false,
+      dialog2: false,
       url: null,
       code: null,
       data: [],
       perfom: [],
+      duration: null,
       warning: false,
       progressValue: 0,
+      formatDuration:null,
+      bpm : {
+        moy: null,
+        max: null
+      },
+      calories: null,
       timeLeft: 100,
     };
   },
@@ -231,7 +260,7 @@ export default {
           .doc(doc.user.id)
           .get()
           .then((res) => {
-            console.log("user", res.data());
+            // console.log("user", res.data());
             doc.user = res.data();
           });
         for (let i = 0; i < doc.exercises.length; i++) {
@@ -239,7 +268,7 @@ export default {
             .doc(doc.exercises[i].exercise.id)
             .get()
             .then((res) => {
-              console.log("ex", res.data());
+              // console.log("ex", res.data());
               doc.exercises[i].exercise = res.data();
               if (res.data().categorie == "haut") doc.haut++;
               if (res.data().categorie == "bas") doc.bas++;
@@ -248,7 +277,7 @@ export default {
       });
     },
     next() {
-      console.log(this.e1);
+      // console.log(this.e1);
       this.e1++;
       this.progressValue = 0;
       if (this.selected.exercises[this.e1 - 1].timer)
@@ -262,6 +291,7 @@ export default {
     },
     close() {
       this.dialog = false;
+      this.dialog2 = false;
       this.e1 = 1;
       clearInterval();
       this.selected = {
@@ -301,8 +331,8 @@ export default {
       this.$store.commit("setTrainingId", this.selected.id);
       this.dialog = false;
       this.$store.commit("setFinalDate", new Date().getTime());
-      // console.log(this.$store.state.startDate);
-      // console.log(this.$store.state.endDate);
+      console.log(this.$store.state.startDate);
+      console.log(this.$store.state.finalDate);
       // const self = this;
       this.e1 = 1;
       (this.selected = {
@@ -328,41 +358,40 @@ export default {
     },
     parseUrl() {
       this.url = window.location.search;
-      // console.log(this.url);
       if (this.url) {
+        console.log(this.url);
         const queryURL = new urlParse(this.url);
         const code = queryParse.parse(queryURL.query).code;
-        console.log("code", code);
+        // console.log("code", code);
         this.getGoogleFitData(code);
       }
     },
     async getGoogleFitData(code) {
+      console.log(code)
+      console.log(this.$store.state.startDate)
+      console.log(this.$store.state.finalDate)
       const self = this;
-      if (code) {
-        var data = JSON.stringify({
-          code: code,
-          startTimeMillis: this.$store.state.startDate,
-          endTimeMillis: this.$store.state.finalDate,
+      var data = JSON.stringify({
+        code: code,
+        startTimeMillis: this.$store.state.startDate,
+        endTimeMillis: this.$store.state.finalDate,
+      });
+      var config = {
+        method: "post",
+        url: "https://europe-west1-sportbase-38151.cloudfunctions.net/postData",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        data: data,
+      };
+      await axios(config)
+        .then(function (response) {
+          self.data = response.data;
+        })
+        .catch(function (error) {
+          console.log(error);
         });
-        var config = {
-          method: "post",
-          url: "https://europe-west1-sportbase-38151.cloudfunctions.net/postData",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          data: data,
-        };
-        await axios(config)
-          .then(function (response) {
-            self.data = response.data;
-          })
-          .catch(function (error) {
-            console.log(error);
-          });
-      } else {
-        console.log("no code");
-      }
-      this.sendGoogleFitData(self.data);
+        self.sendGoogleFitData(this.data);
     },
     sendGoogleFitData(data) {
       var bpm = [];
@@ -381,11 +410,16 @@ export default {
       data.calories.forEach((cal) => {
         calories.calories = cal.fpVal;
       });
+      this.bpm.moy = Math.floor(bpm.moy)
+      this.bpm.max = Math.floor(bpm.max)
+      this.calories = Math.floor(calories.calories)
+      this.formatTime()
+
       const db = firebase.firestore();
       const performs = db.collection("performs");
       performs.doc().set({
-        averageHeartRate: bpm.moy,
-        calories: calories.calories,
+        averageHeartRate: Math.floor(bpm.moy),
+        calories: Math.floor(calories.calories),
         createdAt: firebase.firestore.Timestamp.fromDate(
           new Date(this.$store.state.startDate)
         ),
@@ -393,11 +427,34 @@ export default {
         endAt: firebase.firestore.Timestamp.fromDate(
           new Date(this.$store.state.finalDate)
         ),
-        maxHeartRate: bpm.max,
+        maxHeartRate: Math.floor(bpm.max),
         training: db.doc(`/trainings/${this.$store.state.trainingId}`),
         user: db.doc(`/users/${this.$store.state.uid}`),
       });
+      this.dialog2 = true
     },
+    formatTime() {
+      this.duration = this.$store.state.finalDate - this.$store.state.startDate;
+      console.log(this.$store.state.finalDate );
+      console.log(this.$store.state.startDate);
+      console.log(this.duration);
+      var ms = this.duration // don't forget the second param
+      var hours   = Math.floor(ms / 360000);
+      var minutes = Math.floor((ms - (hours * 360000)) / 60000);
+      var seconds = Math.floor((ms - (hours * 360000) - (minutes * 60000)) / 1000);
+
+      if (hours   < 10) {hours   = "0"+hours;}
+      if (minutes < 10) {minutes = "0"+minutes;}
+      if (seconds < 10) {seconds = "0"+seconds;}
+      this.formatDuration = minutes+' min '+seconds+' secondes'
+      console.log( this.formatDuration);
+    }
   },
 };
 </script>
+
+<style scoped>
+.title {
+  color: white!important;
+}
+</style>
