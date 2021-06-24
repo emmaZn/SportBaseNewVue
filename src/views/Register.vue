@@ -1,10 +1,27 @@
 <template>
-  <div>
-    <v-form @submit.prevent="register">
-      <h2>Register</h2>
-      <v-text-field type="email" label="Adresse email" v-model="email" />
-      <v-text-field type="password" label="Mot de passe" v-model="password" />
-      <button type="submit">Register</button>
+  <v-container fluid class="bg">
+    <v-row justify="center" class="pt-6"> <h1>SPORTBASE</h1></v-row>
+
+    <v-form @submit.prevent="register" class="pt-12 mt-8">
+      <v-row justify="center" class="pt-6">
+        <h2>Register</h2>
+      </v-row>
+      <v-col class="mx-auto pt-8" cols="3">
+        <v-text-field type="email" label="Adresse email" v-model="email" />
+      </v-col>
+      <v-col class="mx-auto" cols="3">
+        <v-text-field type="password" label="Mot de passe" v-model="password" />
+      </v-col>
+      <div class="d-flex justify-center pt-8">
+        <v-btn min-width="250" color="">
+          <button type="submit">REGISTER</button>
+        </v-btn>
+      </div>
+      <div class="d-flex justify-center">
+      <router-link :to="{name:'Login'}">
+        <v-btn color="primary" min-width="250" class="mt-5">CONNEXION</v-btn>
+      </router-link>
+    </div>
     </v-form>
     <v-snackbar v-model="snackbar">
       Un e-mail de vérification vient de vous être envoyé.
@@ -14,7 +31,7 @@
         </v-btn>
       </template>
     </v-snackbar>
-  </div>
+  </v-container>
 </template>
 
 <script>
@@ -65,3 +82,20 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+.bg {
+  background: linear-gradient(168.29deg, #007991 0%, #2f3637 126.15%);
+  height: 100vh;
+  width: 100vw;
+}
+h1 {
+  font-size: 3em;
+  color: white;
+  font-family: "Montserrat", sans-serif;
+}
+h2 {
+  color: white;
+  font-family: "Montserrat", sans-serif;
+}
+</style>
