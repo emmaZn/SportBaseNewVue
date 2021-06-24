@@ -260,8 +260,7 @@ export default {
 
   mounted() {
     if (!this.$store.state.uid) return this.$router.push({ name: "Login" });
-    // console.log(this.$store.state.startDate);
-    // console.log(this.$store.state.endDate);
+    this.formatTime()
     const db = firebase.firestore();
     db.collection("trainings")
       .get()
@@ -388,7 +387,7 @@ export default {
         console.log(this.url);
         const queryURL = new urlParse(this.url);
         const code = queryParse.parse(queryURL.query).code;
-        // console.log("code", code);
+        console.log("code", code);
         this.getGoogleFitData(code);
       }
     },
@@ -412,6 +411,7 @@ export default {
       };
       await axios(config)
         .then(function (response) {
+          console.log(response)
           self.data = response.data;
         })
         .catch(function (error) {
@@ -461,25 +461,14 @@ export default {
     },
     formatTime() {
       this.duration = this.$store.state.finalDate - this.$store.state.startDate;
-      console.log(this.$store.state.finalDate);
-      console.log(this.$store.state.startDate);
-      console.log(this.duration);
-      var ms = this.duration; // don't forget the second param
-      var hours = Math.floor(ms / 360000);
-      var minutes = Math.floor((ms - hours * 360000) / 60000);
-      var seconds = Math.floor((ms - hours * 360000 - minutes * 60000) / 1000);
 
-      if (hours < 10) {
-        hours = "0" + hours;
-      }
-      if (minutes < 10) {
-        minutes = "0" + minutes;
-      }
-      if (seconds < 10) {
-        seconds = "0" + seconds;
-      }
+      var seconds = Math.floor((this.duration / 1000) % 60),
+      minutes = Math.floor((this.duration / (1000 * 60)) % 60),
+      hours = hours < 10 ? "0" + hours : hours;
+      minutes = minutes < 10 ? "0" + minutes : minutes;
+      seconds = seconds < 10 ? "0" + seconds : seconds;
       this.formatDuration = minutes + " min " + seconds + " secondes";
-      console.log(this.formatDuration);
+      console.log(this.formatDuration)
     },
   },
 };
