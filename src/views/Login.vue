@@ -116,9 +116,9 @@ export default {
                 uid: userCredentials.user.uid,
                 email: userCredentials.user.email,
                 emailVerified: userCredentials.user.emailVerified,
-                displayName: userCredentials.user.emailVerified,
-                photoURL: userCredentials.user.emailVerified,
-                isAdmin: userCredentials.user.emailVerified,
+                displayName: userCredentials.user.displayName,
+                photoURL: userCredentials.user.photoURL,
+                isAdmin: userCredentials.user.isAdmin,
               };
               this.$store.commit("setUser", user);
               if (userCredentials.additionalUserInfo.isNewUser) {
