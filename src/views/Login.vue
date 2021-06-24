@@ -1,20 +1,22 @@
 <template>
   <div class="bg">
-    <v-row justify="center"> <h1>SPORTBASE</h1></v-row>
+    <v-container dark>
+      <v-row justify="center"> <h1>SPORTBASE</h1></v-row>
 
-    <v-form>
-      <v-row class="ma-5" justify="center">
-        <v-btn @click="loginWithGoogle">Connexion Google</v-btn>
-      </v-row>
-      <v-row class="ma-5" justify="center">
-        <v-btn @click="loginWithFB">Connexion Facebook</v-btn>
-      </v-row>
-      <v-text-field v-model="email" label="Mail"></v-text-field>
-      <v-text-field v-model="password" label="Mot de passe"></v-text-field>
-      <v-btn @click="submit">Connexion</v-btn>
-    </v-form>
-    
-    <v-btn class="mt-5">Inscription</v-btn>
+      <v-form>
+        <v-row class="ma-5" justify="center">
+          <v-btn @click="loginWithGoogle">Connexion Google</v-btn>
+        </v-row>
+        <v-row class="ma-5" justify="center">
+          <v-btn @click="loginWithFB">Connexion Facebook</v-btn>
+        </v-row>
+        <v-text-field dark v-model="email" label="Mail"></v-text-field>
+        <v-text-field dark v-model="password" label="Mot de passe"></v-text-field>
+        <v-btn @click="submit">Connexion</v-btn>
+      </v-form>
+
+      <v-btn class="mt-5">Inscription</v-btn>
+    </v-container>
   </div>
 </template>
 
@@ -23,14 +25,13 @@ import firebase from "firebase/app";
 // import auth from "firebase/auth";
 
 export default {
-
   data() {
     return {
       email: "",
       password: "",
     };
   },
-  mounted(){
+  mounted() {
     if (this.$store.state.uid) return this.$router.push({ name: "Home" });
   },
   methods: {
@@ -80,8 +81,8 @@ export default {
     },
     loginWithFB() {
       const provider = new firebase.auth.FacebookAuthProvider();
-      provider.addScope('profile_pic')
-      provider.addScope('name')
+      provider.addScope("profile_pic");
+      provider.addScope("name");
 
       firebase
         .auth()

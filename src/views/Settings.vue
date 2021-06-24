@@ -187,6 +187,10 @@ export default {
     },
     setDisplayName() {
       const user = firebase.auth().currentUser;
+      const db = firebase.firestore();
+      db.collection("users").doc(user.uid).update({
+        displayName: this.displayName,
+      });
       user
         .updateProfile({
           displayName: this.displayName,
