@@ -4,7 +4,7 @@
 
     <v-form @submit.prevent="register" class="pt-12 mt-8">
       <v-row justify="center" class="pt-6">
-        <h2>Register</h2>
+        <h2>Inscription</h2>
       </v-row>
       <v-col class="mx-auto pt-8" cols="3">
         <v-text-field dark type="email" label="Adresse email" v-model="email" />
