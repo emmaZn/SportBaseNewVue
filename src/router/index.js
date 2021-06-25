@@ -35,18 +35,6 @@ const routes = [
     name: 'NewTraining',
     component: NewTraining,
   },
-  {
-    path: '/perfom',
-    name: 'Perfom',
-    component: () => import('../views/Perfom.vue'),
-    meta: { transition: 'overlay-right' },
-  },
-  {
-    path: '/test',
-    name: 'Test',
-    component: () => import('../views/Test.vue'),
-    meta: { transition: 'overlay-right' },
-  }
 ]
 
 const router = new VueRouter({

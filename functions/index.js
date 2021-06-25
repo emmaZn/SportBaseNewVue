@@ -18,57 +18,58 @@ var ggfitData = new Object();
 //
 
 exports.getLink = functions.https.onRequest((req, res) => {
-    cors(req, res, () => {
-      const oauth2Client = new google.auth.OAuth2(
-        "329953458846-g91hdj53b2ojs8ck775r7h77c98tm5ql.apps.googleusercontent.com",
-        "C-4DybcdMnORlveADEuoDaXn",
-        "http://localhost:8080"
-      );
-      const scopes = ["https://www.googleapis.com/auth/fitness.heart_rate.read",
-        "https://www.googleapis.com/auth/fitness.activity.read",
-      ];
+  cors(req, res, () => {
+    const oauth2Client = new google.auth.OAuth2(
+      "329953458846-g91hdj53b2ojs8ck775r7h77c98tm5ql.apps.googleusercontent.com",
+      "C-4DybcdMnORlveADEuoDaXn",
+      "https://sportbase-38151.web.app"
+    );
+    const scopes = ["https://www.googleapis.com/auth/fitness.heart_rate.read",
+      "https://www.googleapis.com/auth/fitness.activity.read",
+    ];
 
-      const url = oauth2Client.generateAuthUrl({
-        access_type: "offline",
-        scope: scopes,
-        state: JSON.stringify({
-          callbackUrl: req.body.callbackUrl,
-          userID: req.body.userid,
-        }),
-      });
-      request(url, (err, response) => {
-        console.log("error: ", err);
-        console.log("statCode: ", response && response.statusCode);
-        res.send({
-          url
-        });
+    const url = oauth2Client.generateAuthUrl({
+      access_type: "offline",
+      scope: scopes,
+      state: JSON.stringify({
+        callbackUrl: req.body.callbackUrl,
+        userID: req.body.userid,
+      }),
+    });
+    request(url, (err, response) => {
+      console.log("error: ", err);
+      console.log("statCode: ", response && response.statusCode);
+      res.send({
+        url
       });
     });
   });
+});
 
 exports.postData = functions.https.onRequest(async (req, res) => {
-    cors(req, res, async () => {
-
-      const oauth2Client = new google.auth.OAuth2(
-        '329953458846-g91hdj53b2ojs8ck775r7h77c98tm5ql.apps.googleusercontent.com',
-        'C-4DybcdMnORlveADEuoDaXn',
-        "http://localhost:8080"
-      )
-      const tokens = await oauth2Client.getToken(req.body.code)
-      const result = await axios({
-        method: 'GET',
-        headers: {
-          'Authorization': 'Bearer ' + tokens.tokens.access_token
-        },
-        "Content-Type": "application/json",
-        url: `https://www.googleapis.com/fitness/v1/users/me/dataSources`,
-      })
-      let dataSource = result.data.dataSource
-      dataSource.forEach(async data => {
-        if (
-          data.dataType.name == "com.google.calories.expended" ||
-          data.dataType.name == "com.google.heart_rate.bpm") {
-          const dataType = data.dataType.name
+  cors(req, res, async () => {
+    console.log(req.body);
+    const oauth2Client = new google.auth.OAuth2(
+      '329953458846-g91hdj53b2ojs8ck775r7h77c98tm5ql.apps.googleusercontent.com',
+      'C-4DybcdMnORlveADEuoDaXn',
+      "https://sportbase-38151.web.app"
+    )
+    const tokens = await oauth2Client.getToken(req.body.code)
+    const result = await axios({
+      method: 'GET',
+      headers: {
+        'Authorization': 'Bearer ' + tokens.tokens.access_token
+      },
+      "Content-Type": "application/json",
+      url: `https://www.googleapis.com/fitness/v1/users/me/dataSources`,
+    })
+    let dataSource = result.data.dataSource
+    dataSource.forEach(async data => {
+      if (
+        data.dataType.name == "com.google.calories.expended" ||
+        data.dataType.name == "com.google.heart_rate.bpm") {
+        const dataType = data.dataType.name
+        try {
           const dataSet = await axios({
             method: 'POST',
             headers: {
@@ -82,10 +83,10 @@ exports.postData = functions.https.onRequest(async (req, res) => {
                 dataSourceId: data.dataStreamId,
               }],
               bucketByTime: {
-                durationMillis: 1402000 //86400000 jour
+                durationMillis: req.body.endTimeMillis - req.body.startTimeMillis //86400000 jour
               },
-              startTimeMillis: 1623676620000,
-              endTimeMillis: 1623678022000
+              startTimeMillis: req.body.startTimeMillis,
+              endTimeMillis: req.body.endTimeMillis
             }
           })
           let d = dataSet.data.bucket[0].dataset[0]
@@ -101,7 +102,10 @@ exports.postData = functions.https.onRequest(async (req, res) => {
           if (ggfitData.bpm && ggfitData.calories) {
             return res.send(ggfitData)
           }
+        } catch (e) {
+          return res.send('error')
         }
-      });
+      }
     });
   });
+});

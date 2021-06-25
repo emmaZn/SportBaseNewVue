@@ -78,12 +78,29 @@
         </v-card-title>
         <v-card-text class="pt-2">
           <p>
-            L'entraînement du <span class="font-weight-bold">{{ formatDate(perform.createdAt.toDate()) }}  </span> à
-            duré <span class="font-weight-bold">{{ formatTime(perform.duration) }} </span>
+            L'entraînement du
+            <span class="font-weight-bold">
+              {{ formatDate(perform.createdAt.toDate()) }}
+            </span>
+            à duré
+            <span class="font-weight-bold">
+              {{ formatTime(perform.duration) }}
+            </span>
           </p>
-          <p class="pt-2">BPM moyen <span class="font-weight-bold">{{ perform.averageHeartRate }} </span></p>
-          <p>BPM max <span class="font-weight-bold">{{ perform.maxHeartRate }} </span></p>
-          <p>calories dépensées <span class="font-weight-bold">{{ perform.calories }} </span></p>
+          <p class="pt-2">
+            BPM moyen
+            <span class="font-weight-bold">
+              {{ perform.averageHeartRate }}
+            </span>
+          </p>
+          <p>
+            BPM max
+            <span class="font-weight-bold">{{ perform.maxHeartRate }} </span>
+          </p>
+          <p>
+            calories dépensées
+            <span class="font-weight-bold">{{ perform.calories }} </span>
+          </p>
         </v-card-text>
       </v-card>
     </div>
@@ -244,20 +261,12 @@ export default {
       });
     },
     formatTime(date) {
-      var ms = date; // don't forget the second param
-      var hours = Math.floor(ms / 360000);
-      var minutes = Math.floor((ms - hours * 360000) / 60000);
-      var seconds = Math.floor((ms - hours * 360000 - minutes * 60000) / 1000);
+      var seconds = Math.floor((date / 1000) % 60),
+      minutes = Math.floor((date / (1000 * 60)) % 60),
+      hours = hours < 10 ? "0" + hours : hours;
+      minutes = minutes < 10 ? "0" + minutes : minutes;
+      seconds = seconds < 10 ? "0" + seconds : seconds;
 
-      if (hours < 10) {
-        hours = "0" + hours;
-      }
-      if (minutes < 10) {
-        minutes = "0" + minutes;
-      }
-      if (seconds < 10) {
-        seconds = "0" + seconds;
-      }
       return minutes + " min " + seconds + " secondes";
     },
     formatDate(date) {
